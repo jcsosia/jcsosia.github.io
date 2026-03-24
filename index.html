@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description"
+        content="jcsosia.github.io is a focused personal site for HatSwap, feedback, and project updates." />
+    <title>jcsosia.github.io</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/assets/css/site.css" />
+</head>
+
+<body>
+    <div class="page-shell">
+        <div class="site-frame">
+            <header class="topbar">
+                <a class="brand" href="/" aria-label="jcsosia.github.io home">
+                    <span class="brand-mark">J</span>
+                    <span class="brand-copy">
+                        <strong>jcsosia.github.io</strong>
+                        <span>Personal site for HatSwap updates, feedback, and future projects</span>
+                    </span>
+                </a>
+                <nav class="topnav" aria-label="Primary">
+                    <a href="#projects">Projects</a>
+                    <a href="#feedback">Feedback</a>
+                    <a href="#about">About</a>
+                </nav>
+            </header>
+
+            <main>
+                <section class="hero" aria-labelledby="hero-title">
+                    <div class="hero-copy">
+                        <p class="eyebrow">Jekyll / GitHub Pages / Product feedback</p>
+                        <h1 id="hero-title">A clear home base for the work in progress.</h1>
+                        <p>
+                            This site keeps the main path simple: learn what is being built, find the
+                            right feedback channel, and move directly into the Hatswap issue forms when
+                            something needs attention.
+                        </p>
+                        <div class="hero-actions">
+                            <a class="button primary" href="/hatswap-feedback/">Open Hatswap feedback</a>
+                            <a class="button secondary" href="#projects">See the project layout</a>
+                        </div>
+                    </div>
+
+                    <aside class="hero-card" aria-label="Site summary">
+                        <div>
+                            <p class="panel-label">What this site does</p>
+                            <div class="stat-grid">
+                                <div class="stat">
+                                    <strong>1</strong>
+                                    <span>Main landing page for the site and its projects</span>
+                                </div>
+                                <div class="stat">
+                                    <strong>3</strong>
+                                    <span>Issue templates for bugs, features, and general feedback</span>
+                                </div>
+                                <div class="stat">
+                                    <strong>1</strong>
+                                    <span>Dedicated Hatswap feedback page with direct entry points</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="note-card">
+                            <h3>Feedback first</h3>
+                            <p>
+                                The design keeps support routes visible and consistent so visitors can move
+                                from page to issue form without guessing where to go next.
+                            </p>
+                        </div>
+                    </aside>
+                </section>
+
+                <section class="section section-grid" id="projects" aria-labelledby="projects-title">
+                    <article class="section-panel">
+                        <p class="eyebrow">Project focus</p>
+                        <h2 id="projects-title">HatSwap is the main destination.</h2>
+                        <p>
+                            The landing page now acts as a clean entry point to the project-specific
+                            feedback flow. That keeps the main navigation light while still making the next
+                            action obvious.
+                        </p>
+                    </article>
+
+                    <article class="section-panel">
+                        <p class="eyebrow">Design approach</p>
+                        <h2>Readable, responsive, and low-friction.</h2>
+                        <p>
+                            The visual system uses a warm paper-like background, layered cards, and a
+                            restrained color palette to give the site a polished feel without adding
+                            unnecessary complexity.
+                        </p>
+                    </article>
+                </section>
+
+                <section class="section" id="feedback" aria-labelledby="feedback-title">
+                    <div class="feedback-grid">
+                        <div class="feedback-stack">
+                            <div>
+                                <p class="eyebrow">Feedback flow</p>
+                                <h2 id="feedback-title">Three paths, one clear handoff.</h2>
+                                <p>
+                                    Each issue form gathers the details needed to act quickly. Users can report
+                                    a bug, ask for a feature, or leave general feedback without sorting through
+                                    a long blank issue.
+                                </p>
+                            </div>
+
+                            <div class="process-grid">
+                                <article class="process-card">
+                                    <h3>Bug reports</h3>
+                                    <ul>
+                                        <li>Reproduction steps</li>
+                                        <li>Expected versus actual behavior</li>
+                                        <li>Environment details and screenshots</li>
+                                    </ul>
+                                </article>
+                                <article class="process-card">
+                                    <h3>Feature requests</h3>
+                                    <ul>
+                                        <li>Problem statement</li>
+                                        <li>Suggested solution</li>
+                                        <li>Alternatives or edge cases</li>
+                                    </ul>
+                                </article>
+                            </div>
+                        </div>
+
+                        <aside class="note-card">
+                            <h3>Direct links to issue forms</h3>
+                            <p>
+                                The Hatswap page links straight into GitHub's issue templates so visitors can
+                                submit the right kind of feedback with fewer steps.
+                            </p>
+                            <ul>
+                                <li>Bug report: <code>bug_report.yml</code></li>
+                                <li>Feature request: <code>feature_request.yml</code></li>
+                                <li>General feedback: <code>general_feedback.yml</code></li>
+                            </ul>
+                        </aside>
+                    </div>
+                </section>
+
+                <section class="section" id="about" aria-labelledby="about-title">
+                    <div class="section-panel">
+                        <p class="eyebrow">About this site</p>
+                        <h2 id="about-title">Built for GitHub Pages, with room to grow.</h2>
+                        <p>
+                            The page structure is intentionally small so future project pages can inherit the
+                            same visual language without introducing a full framework or a complicated build
+                            chain.
+                        </p>
+                    </div>
+                </section>
+            </main>
+
+            <footer class="footer">
+                <span>Hosted on GitHub Pages.</span>
+                <span>
+                    Feedback route: <a href="/hatswap-feedback/">/hatswap-feedback/</a>
+                </span>
+            </footer>
+        </div>
+    </div>
+</body>
+
+</html>

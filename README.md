@@ -4,6 +4,7 @@ This is a personal website built using Jekyll, a static site generator. The webs
 ## Features
 - Responsive design for optimal viewing on various devices
 - Feedback pages for users to provide input and suggestions for each project
+  - Each project has its own dedicated feedback page located at `/jcsosia.github.io/{project-name}-feedback`. E.g. `/jcsosia.github.io/hatswap-feedback`
 - Easy navigation through different sections of the website
 - Integration with GitHub Issues for managing feedback and project updates
 
