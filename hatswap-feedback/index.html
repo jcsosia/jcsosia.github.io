@@ -43,10 +43,11 @@
                             feedback you have. Pick the path that fits best and give the details once!
                         </p>
                         <div class="hero-actions">
-                            <a class="button primary"
+                            <a class="button primary" data-feedback-type="bug" data-feedback-template="bug_report.yml"
                                 href="https://github.com/jcsosia/jcsosia.github.io/issues/new?template=bug_report.yml">Report
                                 a bug</a>
-                            <a class="button secondary"
+                            <a class="button secondary" data-feedback-type="feature"
+                                data-feedback-template="feature_request.yml"
                                 href="https://github.com/jcsosia/jcsosia.github.io/issues/new?template=feature_request.yml">Request
                                 a feature</a>
                         </div>
@@ -61,6 +62,15 @@
                                 requests are strongest when they explain the problem first, then the proposed
                                 solution.
                             </p>
+                        </div>
+                        <div class="metadata-card" aria-label="HatSwap device and app info">
+                            <p class="panel-label">Attached metadata</p>
+                            <pre class="metadata-block" data-device-app-info>Device/App Info
+- Source: Unknown
+- Device model: Unknown
+- OS version: Unknown
+- HatSwap version: Unknown
+- Build type: Unknown</pre>
                         </div>
                         <div class="note-card">
                             <h3>Quick rule of thumb</h3>
@@ -95,7 +105,8 @@
                                     <li>Expected behavior</li>
                                     <li>Actual behavior</li>
                                 </ul>
-                                <a class="button primary"
+                                <a class="button primary" data-feedback-type="bug"
+                                    data-feedback-template="bug_report.yml"
                                     href="https://github.com/jcsosia/jcsosia.github.io/issues/new?template=bug_report.yml">Open
                                     bug form</a>
                             </article>
@@ -111,7 +122,8 @@
                                     <li>How should it behave?</li>
                                     <li>Are there alternatives to consider?</li>
                                 </ul>
-                                <a class="button primary"
+                                <a class="button primary" data-feedback-type="feature"
+                                    data-feedback-template="feature_request.yml"
                                     href="https://github.com/jcsosia/jcsosia.github.io/issues/new?template=feature_request.yml">Open
                                     feature form</a>
                             </article>
@@ -128,7 +140,8 @@
                                     <li>What felt confusing or strong?</li>
                                     <li>What should we keep in mind?</li>
                                 </ul>
-                                <a class="button primary"
+                                <a class="button primary" data-feedback-type="general"
+                                    data-feedback-template="general_feedback.yml"
                                     href="https://github.com/jcsosia/jcsosia.github.io/issues/new?template=general_feedback.yml">Open
                                     feedback form</a>
                             </article>
@@ -170,7 +183,8 @@
                         </p>
                         <div class="hero-actions">
                             <a class="button secondary" href="/">Back to the main site</a>
-                            <a class="button primary"
+                            <a class="button primary" data-feedback-type="general"
+                                data-feedback-template="general_feedback.yml"
                                 href="https://github.com/jcsosia/jcsosia.github.io/issues/new?template=general_feedback.yml">Leave
                                 general feedback</a>
                         </div>
@@ -187,6 +201,128 @@
             </footer>
         </div>
     </div>
+
+    <script>
+        (() => {
+            const metadataKeys = ["source", "deviceModel", "osVersion", "appVersion", "buildType"];
+            const feedbackTemplates = {
+                bug: "bug_report.yml",
+                feature: "feature_request.yml",
+                general: "general_feedback.yml"
+            };
+
+            function safeDecodeQueryValue(value) {
+                if (value === null || value === undefined) {
+                    return "";
+                }
+
+                const stringValue = String(value);
+
+                try {
+                    return decodeURIComponent(stringValue.replace(/\+/g, "%20"));
+                } catch (error) {
+                    return stringValue;
+                }
+            }
+
+            function normalizeValue(value) {
+                const decodedValue = safeDecodeQueryValue(value).trim();
+                return decodedValue || "Unknown";
+            }
+
+            function getHatSwapContext() {
+                const searchParams = new URLSearchParams(window.location.search);
+
+                return metadataKeys.reduce((context, key) => {
+                    context[key] = normalizeValue(searchParams.get(key));
+                    return context;
+                }, {});
+            }
+
+            function buildPrefillBlock(context) {
+                return [
+                    "Device/App Info",
+                    `- Source: ${context.source}`,
+                    `- Device model: ${context.deviceModel}`,
+                    `- OS version: ${context.osVersion}`,
+                    `- HatSwap version: ${context.appVersion}`,
+                    `- Build type: ${context.buildType}`
+                ].join("\n");
+            }
+
+            function buildIssueBody(feedbackType, context) {
+                const prefillBlock = buildPrefillBlock(context);
+                const prompts = {
+                    bug: [
+                        "## Bug report",
+                        "",
+                        "Describe what happened and what you expected to happen.",
+                        "",
+                        "### Steps to reproduce",
+                        "",
+                        "1.",
+                        "2.",
+                        "3.",
+                        "",
+                        "### Expected behavior",
+                        "",
+                        "### Actual behavior"
+                    ],
+                    feature: [
+                        "## Feature request",
+                        "",
+                        "Describe the problem first, then the feature you want.",
+                        "",
+                        "### Problem",
+                        "",
+                        "### Proposed solution",
+                        "",
+                        "### Alternatives considered"
+                    ],
+                    general: [
+                        "## General feedback",
+                        "",
+                        "Share anything that would help improve the experience.",
+                        "",
+                        "### Feedback",
+                        ""
+                    ]
+                };
+
+                return [prefillBlock, "", ...(prompts[feedbackType] || prompts.general)].join("\n");
+            }
+
+            function buildIssueUrl(feedbackType, context) {
+                const issueUrl = new URL("https://github.com/jcsosia/jcsosia.github.io/issues/new");
+                const templateName = feedbackTemplates[feedbackType] || feedbackTemplates.general;
+
+                issueUrl.searchParams.set("template", templateName);
+                issueUrl.searchParams.set("body", buildIssueBody(feedbackType, context));
+
+                return issueUrl.toString();
+            }
+
+            function updateMetadataPanel(context) {
+                const metadataPanel = document.querySelector("[data-device-app-info]");
+
+                if (metadataPanel) {
+                    metadataPanel.textContent = buildPrefillBlock(context);
+                }
+            }
+
+            function updateFeedbackLinks(context) {
+                document.querySelectorAll("[data-feedback-type]").forEach((link) => {
+                    const feedbackType = link.dataset.feedbackType || "general";
+                    link.href = buildIssueUrl(feedbackType, context);
+                });
+            }
+
+            const hatSwapContext = getHatSwapContext();
+
+            updateMetadataPanel(hatSwapContext);
+            updateFeedbackLinks(hatSwapContext);
+        })();
+    </script>
 </body>
 
 </html>

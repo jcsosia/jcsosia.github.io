@@ -191,7 +191,8 @@ button:focus-visible {
 .issue-card,
 .process-card,
 .feedback-card,
-.note-card {
+.note-card,
+.metadata-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-xl);
@@ -207,6 +208,28 @@ button:focus-visible {
     padding: 28px;
     display: grid;
     gap: 18px;
+}
+
+.metadata-card {
+    display: grid;
+    gap: 10px;
+    padding: 18px;
+    background: rgba(255, 250, 242, 0.88);
+    border-radius: var(--radius-lg);
+}
+
+.metadata-block {
+    margin: 0;
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(38, 28, 19, 0.08);
+    color: var(--accent-strong);
+    font-family: var(--body-font);
+    font-size: 0.96rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 .eyebrow {
@@ -468,7 +491,8 @@ h1 {
     .issue-card,
     .process-card,
     .feedback-card,
-    .note-card {
+    .note-card,
+    .metadata-card {
         padding: 22px;
     }
 }
