@@ -70,17 +70,17 @@
                     <section class="policy-section" aria-labelledby="policy-section-1">
                         <h3 id="policy-section-1">1. Data Collection and Usage</h3>
                         <p>
-                            Local-only data: HatSwap stores all user-created content (Hats, schedules, app
+                            <b>Local-only data:</b> HatSwap stores all user-created content (Hats, schedules, app
                             associations, and preferences) locally on your device using Room and Jetpack
                             DataStore. The app does not send this data to any server by default.
                         </p>
                         <p>
-                            No accounts or tracking: You are not required to create an account or provide an
+                            <b>No accounts or tracking:</b> You are not required to create an account or provide an
                             email address. HatSwap does not include analytics, tracking pixels, or third-party
                             marketing SDKs.
                         </p>
                         <p>
-                            Note: The app currently does not use a separate on-device encryption library (for
+                            <b>Note:</b> The app currently does not use a separate on-device encryption library (for
                             example SQLCipher or AndroidX Security) for the Room database. If encryption at
                             rest is added in a future release, this policy will be updated to describe the
                             implementation.
@@ -95,7 +95,7 @@
                         </p>
                         <ul>
                             <li>
-                                Installed apps / package visibility: HatSwap enumerates launcher apps using the
+                                <b>Installed apps / package visibility:</b> HatSwap enumerates launcher apps using the
                                 system PackageManager (for example, queryIntentActivities(...)) so you can pick
                                 apps for your Hats. The app does not currently declare the broad QUERY_ALL_PACKAGES
                                 permission in the manifest. The list of apps is used only locally to populate the
@@ -103,13 +103,13 @@
                                 will document that change and provide the required Play Console justification.
                             </li>
                             <li>
-                                Usage Access (PACKAGE_USAGE_STATS): HatSwap may ask you to grant Usage Access in
+                                <b>Usage Access (PACKAGE_USAGE_STATS):</b> HatSwap may ask you to grant Usage Access in
                                 system settings to support schedule detection or to determine the currently active
                                 foreground app in certain flows. This access must be enabled manually by the user
                                 in Settings and the related data is processed on-device only.
                             </li>
                             <li>
-                                Overlay / Draw over apps (SYSTEM_ALERT_WINDOW): If you enable features that require
+                                <b>Overlay / Draw over apps (SYSTEM_ALERT_WINDOW):</b> If you enable features that require
                                 on-screen overlays, HatSwap may request the Draw-over-apps permission. This is an
                                 optional user setting that must be enabled in system Settings and is used only for
                                 the described UX; overlay content and related events are not transmitted off-device.
@@ -121,12 +121,12 @@
                         <h3 id="policy-section-3">3. Backups and Export/Restore</h3>
                         <ul>
                             <li>
-                                Device backups: HatSwap sets android:allowBackup="false" to avoid automatic cloud
+                                <b>Device backups:</b> HatSwap sets android:allowBackup="false" to avoid automatic cloud
                                 backups to the device account. This prevents routine device cloud backup from
                                 including your HatSwap data.
                             </li>
                             <li>
-                                Local export/import: We provide an explicit local backup and restore flow (export
+                                <b>Local export/import:</b> We provide an explicit local backup and restore flow (export
                                 and import JSON) you can use to move or preserve your data. Exports are written to
                                 locations you choose and are not sent to our servers.
                             </li>
@@ -137,13 +137,13 @@
                         <h3 id="policy-section-4">4. Third-Party Services and Feedback</h3>
                         <ul>
                             <li>
-                                No analytics or crash-reporting SDKs: HatSwap does not include analytics,
+                                <b>No analytics or crash-reporting SDKs:</b> HatSwap does not include analytics,
                                 advertising, or crash-reporting SDKs (for example, Firebase Analytics/Crashlytics,
                                 Sentry, Bugsnag). If we add any third-party telemetry in the future, we will update
                                 this policy and list the services and the exact data they collect.
                             </li>
                             <li>
-                                Feedback via GitHub: When you use the in-app feedback action, HatSwap opens a
+                                <b>Feedback via GitHub:</b> When you use the in-app feedback action, HatSwap opens a
                                 GitHub Issue URL and may prefill non-identifying technical metadata (Device model,
                                 Android OS version, App version). You can review and edit this information before
                                 submitting; nothing is posted until you complete the GitHub submission.
@@ -155,13 +155,13 @@
                         <h3 id="policy-section-5">5. Data Deletion and Control</h3>
                         <ul>
                             <li>
-                                Delete / clear data: All HatSwap data is stored in your app sandbox. Uninstalling
+                                <b>Delete / clear data:</b> All HatSwap data is stored in your app sandbox. Uninstalling
                                 the app or using the system "Clear data" control removes local HatSwap data from
                                 your device. You can also delete or export data from within the app if that feature
                                 is provided.
                             </li>
                             <li>
-                                Assistance: If you need help deleting or exporting data, contact us via the GitHub
+                                <b>Assistance:</b> If you need help deleting or exporting data, contact us via the GitHub
                                 feedback link in the app and we will assist.
                             </li>
                         </ul>
