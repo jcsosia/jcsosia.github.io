@@ -171,6 +171,11 @@ button:focus-visible {
     border-color: var(--border);
 }
 
+.topnav a[aria-current="page"] {
+    background: var(--surface-strong);
+    border-color: var(--border);
+}
+
 .hero,
 .section,
 .feedback-grid,
@@ -466,6 +471,43 @@ h1 {
 .feedback-note {
     display: grid;
     gap: 10px;
+}
+
+.policy-document {
+    display: grid;
+    gap: 28px;
+}
+
+.policy-section {
+    display: grid;
+    gap: 12px;
+}
+
+.policy-section+.policy-section {
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+}
+
+.policy-section ul {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--muted);
+}
+
+.policy-section li+li {
+    margin-top: 8px;
+}
+
+.policy-meta {
+    margin-top: 8px;
+    color: var(--accent-strong);
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.policy-summary {
+    margin: 0;
+    color: var(--muted);
 }
 
 @media (max-width: 960px) {
