@@ -132,9 +132,34 @@
                         <p>
                             — JC
                         </p>
+                        <button class="button support-button" type="button" data-support-open aria-haspopup="dialog"
+                            aria-controls="support-modal">Support JC</button>
                     </div>
                 </section>
             </main>
+
+            <dialog class="support-modal" id="support-modal" aria-labelledby="support-modal-title"
+                aria-describedby="support-modal-description">
+                <div class="support-modal-panel">
+                    <div class="support-modal-header">
+                        <div class="support-modal-copy">
+                            <p class="eyebrow">Support JC</p>
+                            <h2 id="support-modal-title">Help keep the work moving.</h2>
+                            <p id="support-modal-description">
+                                Support the projects on this site through Ko-fi without leaving the page.
+                            </p>
+                        </div>
+                        <button class="button secondary support-modal-close" type="button" data-support-close>
+                            Close
+                        </button>
+                    </div>
+                    <div class="support-modal-frame">
+                        <iframe id="kofiframe" class="support-modal-embed"
+                            src="https://ko-fi.com/jcsosia/?hidefeed=true&widget=true&embed=true&preview=true"
+                            title="jcsosia" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </dialog>
 
             <footer class="footer">
                 <span>Hosted on GitHub Pages.</span>
@@ -147,6 +172,93 @@
             </footer>
         </div>
     </div>
+
+    <script>
+        (() => {
+            const trigger = document.querySelector("[data-support-open]");
+            const dialog = document.getElementById("support-modal");
+
+            if (!(trigger instanceof HTMLElement) || !(dialog instanceof HTMLDialogElement)) {
+                return;
+            }
+
+            const closeTargets = dialog.querySelectorAll("[data-support-close]");
+            let returnFocusTo = trigger;
+            let scrollPosition = 0;
+
+            function lockScroll() {
+                scrollPosition = window.scrollY;
+                document.body.classList.add("modal-open");
+                document.body.style.top = `-${scrollPosition}px`;
+            }
+
+            function unlockScroll() {
+                document.body.classList.remove("modal-open");
+                document.body.style.top = "";
+                window.scrollTo(0, scrollPosition);
+            }
+
+            function restoreFocus() {
+                if (returnFocusTo instanceof HTMLElement) {
+                    returnFocusTo.focus();
+                } else {
+                    trigger.focus();
+                }
+            }
+
+            function closeModal() {
+                if (typeof dialog.close === "function" && dialog.open) {
+                    dialog.close();
+                    return;
+                }
+
+                if (dialog.hasAttribute("open")) {
+                    dialog.removeAttribute("open");
+                }
+
+                unlockScroll();
+                restoreFocus();
+            }
+
+            function openModal() {
+                returnFocusTo = document.activeElement instanceof HTMLElement ? document.activeElement : trigger;
+                lockScroll();
+
+                if (typeof dialog.showModal === "function") {
+                    dialog.showModal();
+                } else {
+                    dialog.setAttribute("open", "");
+                }
+
+                const closeButton = dialog.querySelector("[data-support-close]");
+                if (closeButton instanceof HTMLElement) {
+                    closeButton.focus();
+                }
+            }
+
+            trigger.addEventListener("click", openModal);
+
+            closeTargets.forEach((closeTarget) => {
+                closeTarget.addEventListener("click", closeModal);
+            });
+
+            dialog.addEventListener("click", (event) => {
+                if (event.target === dialog) {
+                    closeModal();
+                }
+            });
+
+            dialog.addEventListener("cancel", (event) => {
+                event.preventDefault();
+                closeModal();
+            });
+
+            dialog.addEventListener("close", () => {
+                unlockScroll();
+                restoreFocus();
+            });
+        })();
+    </script>
 </body>
 
 </html>
