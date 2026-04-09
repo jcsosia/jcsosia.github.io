@@ -778,6 +778,6 @@ h1 {
 
     .support-modal-frame {
         min-height: 0;
-        height: min(50dvh, 440px);
+        height: min(60dvh, 560px);
     }
 }
