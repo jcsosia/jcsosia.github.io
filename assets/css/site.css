@@ -375,6 +375,19 @@ h1 {
     padding: 28px;
 }
 
+#about .section-panel {
+    display: grid;
+    gap: 12px;
+}
+
+#about .section-panel h2 {
+    margin: 0 0 8px;
+}
+
+#about .hero-portrait {
+    margin-top: 2px;
+}
+
 .section h2,
 .feedback-grid h2,
 .callout-grid h2 {
