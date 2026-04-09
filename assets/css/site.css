@@ -409,7 +409,7 @@ h1 {
 
 .support-modal-frame {
     min-height: 520px;
-    height: min(72vh, 712px);
+    height: min(66dvh, 712px);
     border-radius: 24px;
     overflow: hidden;
     border: 1px solid rgba(38, 28, 19, 0.08);
@@ -778,6 +778,6 @@ h1 {
 
     .support-modal-frame {
         min-height: 0;
-        height: calc(100dvh - 236px);
+        height: min(50dvh, 440px);
     }
 }
