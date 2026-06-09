@@ -125,7 +125,10 @@
         const fileNameDisplay = document.getElementById('fileName');
         let currentFileUrl = null;
         const revokeCurrentFileUrl = () => {
-            if (currentFileUrl) URL.revokeObjectURL(currentFileUrl);
+            if (currentFileUrl) {
+                URL.revokeObjectURL(currentFileUrl);
+                currentFileUrl = null;
+            }
         };
         window.addEventListener('beforeunload', revokeCurrentFileUrl);
         window.addEventListener('pagehide', revokeCurrentFileUrl);
@@ -137,7 +140,7 @@
                 const file = files[0]; 
                 fileNameDisplay.textContent = file.name;
                 
-                if (currentFileUrl) URL.revokeObjectURL(currentFileUrl);
+                revokeCurrentFileUrl();
                 currentFileUrl = URL.createObjectURL(file);
                 wavesurfer.load(currentFileUrl);
                 
@@ -154,11 +157,13 @@
 
         // VIDEO EXPORT LOGIC
         exportBtn.addEventListener('click', async () => {
-            if (!wavesurfer.getDuration()) {
-                const message = currentFileUrl
-                    ? "Audio is still loading. Please wait, then try exporting again."
-                    : "Please load an audio file before exporting.";
-                alert(message);
+            if (!currentFileUrl) {
+                alert("Please load an audio file before exporting.");
+                return;
+            }
+            const duration = wavesurfer.getDuration();
+            if (!Number.isFinite(duration) || duration <= 0) {
+                alert("Audio is still loading. Please wait, then try exporting again.");
                 return;
             }
             if (typeof MediaRecorder === 'undefined') {
