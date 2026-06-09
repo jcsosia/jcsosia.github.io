@@ -233,16 +233,18 @@
                 }
             };
 
-            wavesurfer.once('finish', () => {
+            const cleanupFinish = wavesurfer.on('finish', () => {
                 if (mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
                 }
+                cleanupFinish();
             });
 
             mediaRecorder.onstop = () => {
                 if (recorderErrored) {
                     stopStreamTracks();
                     resetExportButton();
+                    cleanupFinish();
                     return;
                 }
                 const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
@@ -259,9 +261,11 @@
 
                 stopStreamTracks();
                 resetExportButton();
+                cleanupFinish();
             };
 
-            mediaRecorder.onerror = () => {
+            mediaRecorder.onerror = (event) => {
+                console.error("MediaRecorder error:", event);
                 recorderErrored = true;
                 alert("Video recording failed. Please try again.");
                 if (mediaRecorder.state !== 'inactive') {
@@ -269,6 +273,7 @@
                 } else {
                     stopStreamTracks();
                     resetExportButton();
+                    cleanupFinish();
                 }
             };
 
