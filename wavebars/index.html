@@ -130,8 +130,6 @@
                 currentFileUrl = null;
             }
         };
-        window.addEventListener('beforeunload', revokeCurrentFileUrl);
-        window.addEventListener('pagehide', revokeCurrentFileUrl);
 
         // FIX 1: Correct handling of the file array index to halt rogue downloads
         fileInput.addEventListener('change', function(e) {
