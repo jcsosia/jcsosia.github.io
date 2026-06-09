@@ -237,10 +237,11 @@
                 exportBtn.textContent = "Export to Video";
             };
 
-            wavesurfer.once('finish', () => {
+            const unsubscribeFinish = wavesurfer.on('finish', () => {
                 if (mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
                 }
+                unsubscribeFinish();
             });
 
             mediaRecorder.start();
