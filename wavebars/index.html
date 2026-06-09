@@ -124,6 +124,9 @@
         const exportBtn = document.getElementById('exportBtn');
         const fileNameDisplay = document.getElementById('fileName');
         let currentFileUrl = null;
+        window.addEventListener('beforeunload', () => {
+            if (currentFileUrl) URL.revokeObjectURL(currentFileUrl);
+        });
 
         // FIX 1: Correct handling of the file array index to halt rogue downloads
         fileInput.addEventListener('change', function(e) {
@@ -149,7 +152,10 @@
 
         // VIDEO EXPORT LOGIC
         exportBtn.addEventListener('click', async () => {
-            if (!wavesurfer.getDuration()) return;
+            if (!wavesurfer.getDuration()) {
+                alert("Please load an audio file before exporting.");
+                return;
+            }
             if (typeof MediaRecorder === 'undefined') {
                 alert("Video export is not supported in this browser.");
                 return;
