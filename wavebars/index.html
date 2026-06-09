@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,15 +20,17 @@
             padding: 10px;
             box-sizing: border-box;
         }
+
         .player-container {
             width: 100%;
             max-width: 500px;
             background: #1e1e1e;
             padding: 25px;
             border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
             text-align: center;
         }
+
         .controls-group {
             display: flex;
             flex-direction: column;
@@ -35,9 +38,11 @@
             gap: 15px;
             margin-top: 20px;
         }
+
         input[type="file"] {
             display: none;
         }
+
         .upload-label {
             background: #333333;
             color: #ffffff;
@@ -48,15 +53,18 @@
             display: inline-block;
             transition: background 0.2s;
         }
+
         .upload-label:hover {
             background: #444444;
         }
+
         #waveform {
             width: 100%;
             height: 90px;
             margin-bottom: 10px;
             cursor: pointer;
         }
+
         .btn {
             color: white;
             border: none;
@@ -70,16 +78,22 @@
             max-width: 240px;
             box-sizing: border-box;
         }
+
         .play-btn {
-            background: #ff5500; /* SoundCloud orange */
+            background: #ff5500;
+            /* SoundCloud orange */
         }
+
         .export-btn {
-            background: #0076ff; /* Clean Blue */
+            background: #0076ff;
+            /* Clean Blue */
         }
+
         .export-btn:disabled {
             background: #555555;
             cursor: not-allowed;
         }
+
         #fileName {
             font-size: 14px;
             color: #aaaaaa;
@@ -88,240 +102,251 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="player-container">
-    <div id="fileName">Select an audio file to begin</div>
-    <div id="waveform"></div>
+    <div class="player-container">
+        <div id="fileName">Select an audio file to begin</div>
+        <div id="waveform"></div>
 
-    <div class="controls-group">
-        <label for="fileInput" class="upload-label">Choose Audio File</label>
-        <input type="file" id="fileInput" accept="audio/*">
-        
-        <button id="playBtn" class="btn play-btn">Play / Pause</button>
-        <button id="exportBtn" class="btn export-btn">Export to Video</button>
+        <div class="controls-group">
+            <label for="fileInput" class="upload-label">Choose Audio File</label>
+            <input type="file" id="fileInput" accept="audio/*">
+
+            <button id="playBtn" class="btn play-btn">Play / Pause</button>
+            <button id="exportBtn" class="btn export-btn">Export to Video</button>
+        </div>
     </div>
-</div>
 
-<script type="module">
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof WaveSurfer === 'undefined') return;
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof WaveSurfer === 'undefined') return;
 
-        // Initialize the player
-        const wavesurfer = WaveSurfer.create({
-            container: '#waveform',
-            waveColor: '#444444',       
-            progressColor: '#ff5500',   
-            height: 90,
-            barWidth: 3,                
-            barGap: 3,                  
-            barRadius: 3,               
-            cursorWidth: 0,             
-        });
+            // Initialize the player
+            const wavesurfer = WaveSurfer.create({
+                container: '#waveform',
+                waveColor: '#444444',
+                progressColor: '#ff5500',
+                height: 90,
+                barWidth: 3,
+                barGap: 3,
+                barRadius: 3,
+                cursorWidth: 0,
+            });
 
-        const fileInput = document.getElementById('fileInput');
-        const playBtn = document.getElementById('playBtn');
-        const exportBtn = document.getElementById('exportBtn');
-        const fileNameDisplay = document.getElementById('fileName');
-        let currentFileUrl = null;
-        const revokeCurrentFileUrl = () => {
-            if (currentFileUrl) {
-                URL.revokeObjectURL(currentFileUrl);
-                currentFileUrl = null;
-            }
-        };
-
-        // FIX 1: Correct handling of the file array index to halt rogue downloads
-        fileInput.addEventListener('change', function(e) {
-            const files = e.target.files;
-            if (files && files.length > 0) {
-                const file = files[0]; 
-                fileNameDisplay.textContent = file.name;
-                
-                revokeCurrentFileUrl();
-                currentFileUrl = URL.createObjectURL(file);
-                wavesurfer.load(currentFileUrl);
-                
-                playBtn.style.display = 'block';
-                exportBtn.style.display = 'block';
-                exportBtn.disabled = false;
-                exportBtn.textContent = "Export to Video";
-            }
-        });
-
-        playBtn.addEventListener('click', () => {
-            wavesurfer.playPause();
-        });
-
-        // VIDEO EXPORT LOGIC
-        exportBtn.addEventListener('click', async () => {
-            if (!currentFileUrl) {
-                alert("Please load an audio file before exporting.");
-                return;
-            }
-            const duration = wavesurfer.getDuration();
-            if (!Number.isFinite(duration) || duration <= 0) {
-                alert("Audio is still loading. Please wait, then try exporting again.");
-                return;
-            }
-            if (typeof MediaRecorder === 'undefined') {
-                alert("Video export is not supported in this browser.");
-                return;
-            }
-
-            exportBtn.disabled = true;
-            exportBtn.textContent = "Recording...";
-            const resetExportButton = () => {
-                exportBtn.disabled = false;
-                exportBtn.textContent = "Export to Video";
-            };
-
-            // Check captureStream support before doing any work
-            if (typeof document.createElement('canvas').captureStream !== 'function') {
-                alert("Video export is not supported on this browser.\n\nFor video export, please use Chrome or Firefox on a desktop or Android device.");
-                resetExportButton();
-                return;
-            }
-
-            wavesurfer.setTime(0);
-
-            // WaveSurfer v7 renders inside a Shadow DOM, so a plain
-            // document.querySelector('#waveform canvas') returns null.
-            // Access the canvases through the shadow root instead.
-            const wrapper = wavesurfer.getWrapper();
-            const shadowRoot = wrapper?.shadowRoot;
-            const sourceCanvases = shadowRoot
-                ? Array.from(shadowRoot.querySelectorAll('canvas'))
-                : Array.from(document.querySelectorAll('#waveform canvas'));
-
-            if (sourceCanvases.length === 0) {
-                alert("Could not locate the waveform canvas. Please try again.");
-                resetExportButton();
-                return;
-            }
-
-            // Create a dedicated composite canvas so both the wave layer and
-            // the progress-colour layer are captured together in one stream.
-            const waveformEl = document.getElementById('waveform');
-            const recordCanvas = document.createElement('canvas');
-            const FALLBACK_WIDTH = 500;  // matches .player-container max-width
-            const FALLBACK_HEIGHT = 90;  // matches WaveSurfer height option
-            recordCanvas.width = waveformEl.offsetWidth || FALLBACK_WIDTH;
-            recordCanvas.height = waveformEl.offsetHeight || FALLBACK_HEIGHT;
-            const ctx = recordCanvas.getContext('2d');
-
-            let animFrameId = null;
-            const drawFrame = () => {
-                ctx.fillStyle = '#1e1e1e';
-                ctx.fillRect(0, 0, recordCanvas.width, recordCanvas.height);
-                sourceCanvases.forEach(c => {
-                    if (c.width > 0 && c.height > 0) {
-                        ctx.drawImage(c, 0, 0, recordCanvas.width, recordCanvas.height);
-                    }
-                });
-                animFrameId = requestAnimationFrame(drawFrame);
-            };
-            animFrameId = requestAnimationFrame(drawFrame);
-
-            // Capture visual stream from the composite canvas at 30 fps
-            const videoStream = recordCanvas.captureStream(30);
-
-            // FIX 2: Safely target the core underlying Media Element stream for sound routing
-            const audioElement = wavesurfer.getMediaElement();
-            let combinedStream;
-
-            if (audioElement && typeof audioElement.captureStream === 'function') {
-                const audioStream = audioElement.captureStream();
-                combinedStream = new MediaStream([
-                    ...videoStream.getVideoTracks(),
-                    ...audioStream.getAudioTracks()
-                ]);
-            } else {
-                // Fallback: If mobile browser blocks audio capture stream routing, record video-only
-                combinedStream = videoStream;
-                console.warn("Audio stream trace dropped. Outputting visual layer only.");
-            }
-
-            const stopStreamTracks = () => {
-                cancelAnimationFrame(animFrameId);
-                combinedStream.getTracks().forEach(track => track.stop());
-            };
-
-            // Standardize output formats across mobile safari and android chrome
-            const mimeCandidates = ['video/webm;codecs=vp9', 'video/webm', 'video/mp4'];
-            const mimeType = mimeCandidates.find(type => MediaRecorder.isTypeSupported(type));
-            let mediaRecorder;
-            try {
-                mediaRecorder = mimeType
-                    ? new MediaRecorder(combinedStream, { mimeType })
-                    : new MediaRecorder(combinedStream);
-            } catch (error) {
-                console.error("Failed to initialize video recording:", error);
-                alert("Video export is not available on this browser.");
-                stopStreamTracks();
-                resetExportButton();
-                return;
-            }
-            const recordedChunks = [];
-            let recorderErrored = false;
-            let isCleanedUp = false;
-            let unsubscribeFromFinish = () => {};
-
-            mediaRecorder.ondataavailable = (event) => {
-                if (event.data.size > 0) {
-                    recordedChunks.push(event.data);
+            const fileInput = document.getElementById('fileInput');
+            const playBtn = document.getElementById('playBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            const fileNameDisplay = document.getElementById('fileName');
+            let currentFileUrl = null;
+            const revokeCurrentFileUrl = () => {
+                if (currentFileUrl) {
+                    URL.revokeObjectURL(currentFileUrl);
+                    currentFileUrl = null;
                 }
             };
 
-            const cleanupAfterRecording = () => {
-                if (isCleanedUp) return;
-                isCleanedUp = true;
-                stopStreamTracks();
-                resetExportButton();
-                unsubscribeFromFinish();
-            };
+            // FIX 1: Correct handling of the file array index to halt rogue downloads
+            fileInput.addEventListener('change', function (e) {
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                    const file = files[0];
+                    fileNameDisplay.textContent = file.name;
 
-            unsubscribeFromFinish = wavesurfer.on('finish', () => {
-                if (mediaRecorder.state !== 'inactive') {
-                    mediaRecorder.stop();
+                    revokeCurrentFileUrl();
+                    currentFileUrl = URL.createObjectURL(file);
+                    wavesurfer.load(currentFileUrl);
+
+                    playBtn.style.display = 'block';
+                    exportBtn.style.display = 'block';
+                    exportBtn.disabled = false;
+                    exportBtn.textContent = "Export to Video";
                 }
             });
 
-            mediaRecorder.onstop = () => {
-                if (recorderErrored) {
-                    cleanupAfterRecording();
+            playBtn.addEventListener('click', () => {
+                wavesurfer.playPause();
+            });
+
+            // VIDEO EXPORT LOGIC
+            exportBtn.addEventListener('click', async () => {
+                if (!currentFileUrl) {
+                    alert("Please load an audio file before exporting.");
                     return;
                 }
-                const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                // Save with matching native format tag
-                const extension = mediaRecorder.mimeType.includes('mp4') ? 'mp4' : 'webm';
-                a.download = `waveform_export.${extension}`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-
-                cleanupAfterRecording();
-            };
-
-            mediaRecorder.onerror = (event) => {
-                console.error("MediaRecorder error:", event);
-                recorderErrored = true;
-                alert("Video recording failed. Please try again.");
-                if (mediaRecorder.state !== 'inactive') {
-                    mediaRecorder.stop();
+                const duration = wavesurfer.getDuration();
+                if (!Number.isFinite(duration) || duration <= 0) {
+                    alert("Audio is still loading. Please wait, then try exporting again.");
+                    return;
                 }
-                cleanupAfterRecording();
-            };
+                if (typeof MediaRecorder === 'undefined') {
+                    alert("Video export is not supported in this browser.");
+                    return;
+                }
 
-            mediaRecorder.start();
-            wavesurfer.play();
+                exportBtn.disabled = true;
+                exportBtn.textContent = "Recording...";
+                const resetExportButton = () => {
+                    exportBtn.disabled = false;
+                    exportBtn.textContent = "Export to Video";
+                };
+
+                // Check captureStream support before doing any work
+                if (typeof document.createElement('canvas').captureStream !== 'function') {
+                    alert("Video export is not supported on this browser.\n\nFor video export, please use Chrome or Firefox on a desktop or Android device.");
+                    resetExportButton();
+                    return;
+                }
+
+                wavesurfer.setTime(0);
+
+                // In WaveSurfer v7 the renderer wrapper lives inside an injected
+                // shadow tree, so getWrapper() points at the waveform wrapper,
+                // not at the shadow host itself.
+                const wrapper = wavesurfer.getWrapper();
+                const waveformEl = document.getElementById('waveform');
+                const rendererRoot = wrapper?.getRootNode?.();
+                const sourceCanvases = [
+                    ...Array.from(wrapper?.querySelectorAll('canvas') ?? []),
+                    ...Array.from(
+                        rendererRoot instanceof ShadowRoot
+                            ? rendererRoot.querySelectorAll('canvas')
+                            : []
+                    ),
+                    ...Array.from(waveformEl?.querySelectorAll('canvas') ?? []),
+                    ...Array.from(waveformEl?.children ?? []).flatMap(child =>
+                        child.shadowRoot ? Array.from(child.shadowRoot.querySelectorAll('canvas')) : []
+                    ),
+                ].filter((canvas, index, allCanvases) => allCanvases.indexOf(canvas) === index);
+
+                if (sourceCanvases.length === 0) {
+                    alert("Could not locate the waveform canvas. Please try again.");
+                    resetExportButton();
+                    return;
+                }
+
+                // Create a dedicated composite canvas so both the wave layer and
+                // the progress-colour layer are captured together in one stream.
+                const recordCanvas = document.createElement('canvas');
+                const FALLBACK_WIDTH = 500;  // matches .player-container max-width
+                const FALLBACK_HEIGHT = 90;  // matches WaveSurfer height option
+                recordCanvas.width = waveformEl.offsetWidth || FALLBACK_WIDTH;
+                recordCanvas.height = waveformEl.offsetHeight || FALLBACK_HEIGHT;
+                const ctx = recordCanvas.getContext('2d');
+
+                let animFrameId = null;
+                const drawFrame = () => {
+                    ctx.fillStyle = '#1e1e1e';
+                    ctx.fillRect(0, 0, recordCanvas.width, recordCanvas.height);
+                    sourceCanvases.forEach(c => {
+                        if (c.width > 0 && c.height > 0) {
+                            ctx.drawImage(c, 0, 0, recordCanvas.width, recordCanvas.height);
+                        }
+                    });
+                    animFrameId = requestAnimationFrame(drawFrame);
+                };
+                animFrameId = requestAnimationFrame(drawFrame);
+
+                // Capture visual stream from the composite canvas at 30 fps
+                const videoStream = recordCanvas.captureStream(30);
+
+                // FIX 2: Safely target the core underlying Media Element stream for sound routing
+                const audioElement = wavesurfer.getMediaElement();
+                let combinedStream;
+
+                if (audioElement && typeof audioElement.captureStream === 'function') {
+                    const audioStream = audioElement.captureStream();
+                    combinedStream = new MediaStream([
+                        ...videoStream.getVideoTracks(),
+                        ...audioStream.getAudioTracks()
+                    ]);
+                } else {
+                    // Fallback: If mobile browser blocks audio capture stream routing, record video-only
+                    combinedStream = videoStream;
+                    console.warn("Audio stream trace dropped. Outputting visual layer only.");
+                }
+
+                const stopStreamTracks = () => {
+                    cancelAnimationFrame(animFrameId);
+                    combinedStream.getTracks().forEach(track => track.stop());
+                };
+
+                // Standardize output formats across mobile safari and android chrome
+                const mimeCandidates = ['video/webm;codecs=vp9', 'video/webm', 'video/mp4'];
+                const mimeType = mimeCandidates.find(type => MediaRecorder.isTypeSupported(type));
+                let mediaRecorder;
+                try {
+                    mediaRecorder = mimeType
+                        ? new MediaRecorder(combinedStream, { mimeType })
+                        : new MediaRecorder(combinedStream);
+                } catch (error) {
+                    console.error("Failed to initialize video recording:", error);
+                    alert("Video export is not available on this browser.");
+                    stopStreamTracks();
+                    resetExportButton();
+                    return;
+                }
+                const recordedChunks = [];
+                let recorderErrored = false;
+                let isCleanedUp = false;
+                let unsubscribeFromFinish = () => { };
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+
+                const cleanupAfterRecording = () => {
+                    if (isCleanedUp) return;
+                    isCleanedUp = true;
+                    stopStreamTracks();
+                    resetExportButton();
+                    unsubscribeFromFinish();
+                };
+
+                unsubscribeFromFinish = wavesurfer.on('finish', () => {
+                    if (mediaRecorder.state !== 'inactive') {
+                        mediaRecorder.stop();
+                    }
+                });
+
+                mediaRecorder.onstop = () => {
+                    if (recorderErrored) {
+                        cleanupAfterRecording();
+                        return;
+                    }
+                    const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
+                    const url = URL.createObjectURL(blob);
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    // Save with matching native format tag
+                    const extension = mediaRecorder.mimeType.includes('mp4') ? 'mp4' : 'webm';
+                    a.download = `waveform_export.${extension}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+
+                    cleanupAfterRecording();
+                };
+
+                mediaRecorder.onerror = (event) => {
+                    console.error("MediaRecorder error:", event);
+                    recorderErrored = true;
+                    alert("Video recording failed. Please try again.");
+                    if (mediaRecorder.state !== 'inactive') {
+                        mediaRecorder.stop();
+                    }
+                    cleanupAfterRecording();
+                };
+
+                mediaRecorder.start();
+                wavesurfer.play();
+            });
         });
-    });
-</script>
+    </script>
 
 </body>
+
 </html>
