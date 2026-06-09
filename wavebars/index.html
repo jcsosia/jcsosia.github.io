@@ -235,13 +235,13 @@
 
                 exportBtn.disabled = false;
                 exportBtn.textContent = "Export to Video";
+                unsubscribeFinish();
             };
 
             const unsubscribeFinish = wavesurfer.on('finish', () => {
                 if (mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
                 }
-                unsubscribeFinish();
             });
 
             mediaRecorder.start();
