@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Friendly Audio Bar Player & Video Exporter</title>
+    <!-- Explicitly bundled v7 UMD distribution -->
+    <script src="https://unpkg.com"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .player-container {
+            width: 100%;
+            max-width: 500px;
+            background: #1e1e1e;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+        .controls-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .upload-label {
+            background: #333333;
+            color: #ffffff;
+            border: 2px dashed #555555;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-block;
+            transition: background 0.2s;
+        }
+        .upload-label:hover {
+            background: #444444;
+        }
+        #waveform {
+            width: 100%;
+            height: 90px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .btn {
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            width: 100%;
+            max-width: 240px;
+            box-sizing: border-box;
+        }
+        .play-btn {
+            background: #ff5500; /* SoundCloud orange */
+        }
+        .export-btn {
+            background: #0076ff; /* Clean Blue */
+        }
+        .export-btn:disabled {
+            background: #555555;
+            cursor: not-allowed;
+        }
+        #fileName {
+            font-size: 14px;
+            color: #aaaaaa;
+            margin-bottom: 15px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+<div class="player-container">
+    <div id="fileName">Select an audio file to begin</div>
+    <div id="waveform"></div>
+
+    <div class="controls-group">
+        <label for="fileInput" class="upload-label">Choose Audio File</label>
+        <input type="file" id="fileInput" accept="audio/*">
+        
+        <button id="playBtn" class="btn play-btn">Play / Pause</button>
+        <button id="exportBtn" class="btn export-btn">Export to Video</button>
+    </div>
+</div>
+
+<script type="module">
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof WaveSurfer === 'undefined') return;
+
+        // Initialize the player
+        const wavesurfer = WaveSurfer.create({
+            container: '#waveform',
+            waveColor: '#444444',       
+            progressColor: '#ff5500',   
+            height: 90,
+            barWidth: 3,                
+            barGap: 3,                  
+            barRadius: 3,               
+            cursorWidth: 0,             
+        });
+
+        const fileInput = document.getElementById('fileInput');
+        const playBtn = document.getElementById('playBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const fileNameDisplay = document.getElementById('fileName');
+
+        // FIX 1: Correct handling of the file array index to halt rogue downloads
+        fileInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const file = files[0]; 
+                fileNameDisplay.textContent = file.name;
+                
+                const fileUrl = URL.createObjectURL(file);
+                wavesurfer.load(fileUrl);
+                
+                playBtn.style.display = 'block';
+                exportBtn.style.display = 'block';
+                exportBtn.disabled = false;
+                exportBtn.textContent = "Export to Video";
+            }
+        });
+
+        playBtn.addEventListener('click', () => {
+            wavesurfer.playPause();
+        });
+
+        // VIDEO EXPORT LOGIC
+        exportBtn.addEventListener('click', async () => {
+            exportBtn.disabled = true;
+            exportBtn.textContent = "Recording...";
+
+            wavesurfer.setTime(0);
+
+            // Grab the active canvas layer
+            const canvas = document.querySelector('#waveform canvas');
+            if (!canvas) {
+                alert("Waveform canvas not found.");
+                exportBtn.disabled = false;
+                exportBtn.textContent = "Export to Video";
+                return;
+            }
+
+            // Capture visual stream from canvas at 30fps
+            const videoStream = canvas.captureStream(30);
+
+            // FIX 2: Safely target the core underlying Media Element stream for sound routing
+            const audioElement = wavesurfer.getMediaElement();
+            let combinedStream;
+
+            if (audioElement && typeof audioElement.captureStream === 'function') {
+                const audioStream = audioElement.captureStream();
+                combinedStream = new MediaStream([
+                    ...videoStream.getVideoTracks(),
+                    ...audioStream.getAudioTracks()
+                ]);
+            } else {
+                // Fallback: If mobile browser blocks audio capture stream routing, record video-only
+                combinedStream = videoStream;
+                console.warn("Audio stream trace dropped. Outputting visual layer only.");
+            }
+
+            // Standardize output formats across mobile safari and android chrome
+            let options = { mimeType: 'video/webm;codecs=vp9' };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options = { mimeType: 'video/webm' };
+            }
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options = { mimeType: 'video/mp4' }; // Fallback container for older iOS
+            }
+
+            const mediaRecorder = new MediaRecorder(combinedStream, options);
+            const recordedChunks = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                // Save with matching native format tag
+                const extension = mediaRecorder.mimeType.includes('mp4') ? 'mp4' : 'webm';
+                a.download = `waveform_export.${extension}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                exportBtn.disabled = false;
+                exportBtn.textContent = "Export to Video";
+            };
+
+            wavesurfer.on('finish', () => {
+                if (mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+            });
+
+            mediaRecorder.start();
+            wavesurfer.play();
+        });
+    });
+</script>
+
+</body>
+</html>
