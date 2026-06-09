@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Modern Audio Bar Player</title>
+    <!-- FIX 1: Point to the explicit UMD distribution file so WaveSurfer is globally exposed -->
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .player-container {
+            width: 80%;
+            max-width: 600px;
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+        .controls-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .upload-label {
+            background: #333333;
+            color: #ffffff;
+            border: 2px dashed #555555;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .upload-label:hover {
+            background: #444444;
+        }
+        #waveform {
+            width: 100%;
+            height: 90px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .play-btn {
+            background: #ff5500;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+        }
+        #fileName {
+            font-size: 14px;
+            color: #aaaaaa;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="player-container">
+    <div id="fileName">Select an audio file to begin</div>
+    <div id="waveform"></div>
+
+    <div class="controls-group">
+        <label for="fileInput" class="upload-label">Choose Audio File</label>
+        <input type="file" id="fileInput" accept="audio/*">
+        <button id="playBtn" class="play-btn">Play / Pause</button>
+    </div>
+</div>
+
+<!-- FIX 2: Change to type="module" to guarantee proper asynchronous execution context -->
+<script type="module">
+    // Wait for the HTML elements to exist on the screen
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        // Safety check to verify the library loaded correctly
+        if (typeof WaveSurfer === 'undefined') {
+            console.error("WaveSurfer script failed to bind. Trying fallback approach...");
+            return;
+        }
+
+        // Initialize the player with the "Audio Bars" style layout
+        const wavesurfer = WaveSurfer.create({
+            container: '#waveform',
+            waveColor: '#444444',       
+            progressColor: '#ff5500',   
+            height: 90,
+            barWidth: 3,                
+            barGap: 3,                  
+            barRadius: 3,               
+            cursorWidth: 0,             
+        });
+
+        const fileInput = document.getElementById('fileInput');
+        const playBtn = document.getElementById('playBtn');
+        const fileNameDisplay = document.getElementById('fileName');
+
+        // Handle the file upload process
+        fileInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            
+            if (files && files.length > 0) {
+                const file = files[0];
+                fileNameDisplay.textContent = file.name;
+                
+                // Convert the local file into a secure temporary object URL string
+                const fileUrl = URL.createObjectURL(file);
+                
+                wavesurfer.load(fileUrl);
+                playBtn.style.display = 'block';
+            }
+        });
+
+        // Hook up the play/pause toggle button execution
+        playBtn.addEventListener('click', () => {
+            wavesurfer.playPause();
+        });
+    });
+</script>
+
+</body>
+</html>
