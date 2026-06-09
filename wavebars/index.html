@@ -233,7 +233,7 @@
                 }
             };
 
-            const unsubscribeFinish = wavesurfer.on('finish', () => {
+            wavesurfer.once('finish', () => {
                 if (mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
                 }
@@ -243,7 +243,6 @@
                 if (recorderErrored) {
                     stopStreamTracks();
                     resetExportButton();
-                    unsubscribeFinish();
                     return;
                 }
                 const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
@@ -257,11 +256,9 @@
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                setTimeout(() => URL.revokeObjectURL(url), 1000);
 
                 stopStreamTracks();
                 resetExportButton();
-                unsubscribeFinish();
             };
 
             mediaRecorder.onerror = () => {
@@ -272,7 +269,6 @@
                 } else {
                     stopStreamTracks();
                     resetExportButton();
-                    unsubscribeFinish();
                 }
             };
 
