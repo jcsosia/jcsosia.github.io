@@ -198,7 +198,9 @@
                     return;
                 }
 
+                wavesurfer.pause();
                 wavesurfer.setTime(0);
+                await new Promise(requestAnimationFrame);
 
                 // In WaveSurfer v7 the renderer wrapper lives inside an injected
                 // shadow tree, so getWrapper() points at the waveform wrapper,
@@ -219,33 +221,96 @@
                     ),
                 ].filter((canvas, index, allCanvases) => allCanvases.indexOf(canvas) === index);
 
-                if (sourceCanvases.length === 0) {
+                const progressLayer = wrapper?.querySelector('.progress')
+                    ?? (rendererRoot instanceof ShadowRoot ? rendererRoot.querySelector('.progress') : null);
+                const wrapperRect = wrapper?.getBoundingClientRect();
+
+                if (!wrapperRect || wrapperRect.width <= 0 || wrapperRect.height <= 0 || sourceCanvases.length === 0) {
                     alert("Could not locate the waveform canvas. Please try again.");
                     resetExportButton();
                     return;
                 }
 
-                // Create a dedicated composite canvas so both the wave layer and
-                // the progress-colour layer are captured together in one stream.
+                // Create a dedicated composite canvas and mirror WaveSurfer's
+                // progress clipping so the export matches the on-screen playback.
                 const recordCanvas = document.createElement('canvas');
                 const FALLBACK_WIDTH = 500;  // matches .player-container max-width
                 const FALLBACK_HEIGHT = 90;  // matches WaveSurfer height option
-                recordCanvas.width = waveformEl.offsetWidth || FALLBACK_WIDTH;
-                recordCanvas.height = waveformEl.offsetHeight || FALLBACK_HEIGHT;
+                const displayWidth = wrapperRect.width || waveformEl.offsetWidth || FALLBACK_WIDTH;
+                const displayHeight = wrapperRect.height || waveformEl.offsetHeight || FALLBACK_HEIGHT;
+                const sourcePixelWidth = sourceCanvases.reduce(
+                    (maxWidth, canvas) => Math.max(maxWidth, canvas.width),
+                    displayWidth
+                );
+                const exportScale = Math.max(window.devicePixelRatio || 1, 2);
+                const exportWidth = Math.min(
+                    Math.max(Math.round(displayWidth * exportScale), sourcePixelWidth, 960),
+                    1920
+                );
+                const exportHeight = Math.max(
+                    Math.round(exportWidth * (displayHeight / displayWidth)),
+                    1
+                );
+                recordCanvas.width = exportWidth;
+                recordCanvas.height = exportHeight;
                 const ctx = recordCanvas.getContext('2d');
+                if (!ctx) {
+                    alert("Could not create the export canvas. Please try again.");
+                    resetExportButton();
+                    return;
+                }
+                ctx.imageSmoothingEnabled = false;
+
+                const scaleX = recordCanvas.width / displayWidth;
+                const scaleY = recordCanvas.height / displayHeight;
+                const layeredCanvases = sourceCanvases.map(canvas => ({
+                    canvas,
+                    rect: canvas.getBoundingClientRect(),
+                    isProgressLayer: Boolean(canvas.closest('.progress')),
+                }));
+                const baseLayers = layeredCanvases.filter(layer => !layer.isProgressLayer);
+                const progressLayers = layeredCanvases.filter(layer => layer.isProgressLayer);
+
+                const drawLayer = ({ canvas, rect }) => {
+                    if (canvas.width <= 0 || canvas.height <= 0 || rect.width <= 0 || rect.height <= 0) {
+                        return;
+                    }
+
+                    const destX = (rect.left - wrapperRect.left) * scaleX;
+                    const destY = (rect.top - wrapperRect.top) * scaleY;
+                    const destWidth = rect.width * scaleX;
+                    const destHeight = rect.height * scaleY;
+                    ctx.drawImage(canvas, destX, destY, destWidth, destHeight);
+                };
 
                 let animFrameId = null;
                 const drawFrame = () => {
                     ctx.fillStyle = '#1e1e1e';
                     ctx.fillRect(0, 0, recordCanvas.width, recordCanvas.height);
-                    sourceCanvases.forEach(c => {
-                        if (c.width > 0 && c.height > 0) {
-                            ctx.drawImage(c, 0, 0, recordCanvas.width, recordCanvas.height);
+                    baseLayers.forEach(drawLayer);
+
+                    if (progressLayers.length > 0 && progressLayer) {
+                        const progressRect = progressLayer.getBoundingClientRect();
+                        const clipLeft = Math.max(0, (progressRect.left - wrapperRect.left) * scaleX);
+                        const clipRight = Math.min(
+                            recordCanvas.width,
+                            (progressRect.right - wrapperRect.left) * scaleX
+                        );
+                        const clipWidth = Math.max(0, clipRight - clipLeft);
+
+                        if (clipWidth > 0) {
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.rect(clipLeft, 0, clipWidth, recordCanvas.height);
+                            ctx.clip();
+                            progressLayers.forEach(drawLayer);
+                            ctx.restore();
                         }
-                    });
+                    }
+
                     animFrameId = requestAnimationFrame(drawFrame);
                 };
-                animFrameId = requestAnimationFrame(drawFrame);
+                drawFrame();
 
                 // Capture visual stream from the composite canvas at 30 fps
                 const videoStream = recordCanvas.captureStream(30);
@@ -272,19 +337,30 @@
                 };
 
                 // Standardize output formats across mobile safari and android chrome
-                const mimeCandidates = ['video/webm;codecs=vp9', 'video/webm', 'video/mp4'];
+                const mimeCandidates = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
                 const mimeType = mimeCandidates.find(type => MediaRecorder.isTypeSupported(type));
+                const hasAudioTrack = combinedStream.getAudioTracks().length > 0;
+                const recorderOptions = {
+                    ...(mimeType ? { mimeType } : {}),
+                    videoBitsPerSecond: exportWidth >= 1440 ? 8000000 : 6000000,
+                    ...(hasAudioTrack ? { audioBitsPerSecond: 192000 } : {}),
+                };
                 let mediaRecorder;
                 try {
-                    mediaRecorder = mimeType
-                        ? new MediaRecorder(combinedStream, { mimeType })
-                        : new MediaRecorder(combinedStream);
+                    mediaRecorder = new MediaRecorder(combinedStream, recorderOptions);
                 } catch (error) {
-                    console.error("Failed to initialize video recording:", error);
-                    alert("Video export is not available on this browser.");
-                    stopStreamTracks();
-                    resetExportButton();
-                    return;
+                    console.warn("Falling back to default recorder options:", error);
+                    try {
+                        mediaRecorder = mimeType
+                            ? new MediaRecorder(combinedStream, { mimeType })
+                            : new MediaRecorder(combinedStream);
+                    } catch (fallbackError) {
+                        console.error("Failed to initialize video recording:", fallbackError);
+                        alert("Video export is not available on this browser.");
+                        stopStreamTracks();
+                        resetExportButton();
+                        return;
+                    }
                 }
                 const recordedChunks = [];
                 let recorderErrored = false;
