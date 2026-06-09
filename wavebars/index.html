@@ -227,7 +227,7 @@
             const recordedChunks = [];
             let recorderErrored = false;
             let isCleanedUp = false;
-            let finishUnsubscribe = () => {};
+            let unsubscribeFromFinish = () => {};
 
             mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
@@ -240,15 +240,13 @@
                 isCleanedUp = true;
                 stopStreamTracks();
                 resetExportButton();
-                finishUnsubscribe();
+                unsubscribeFromFinish();
             };
 
-            finishUnsubscribe = wavesurfer.on('finish', () => {
+            unsubscribeFromFinish = wavesurfer.on('finish', () => {
                 if (mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
                 }
-                finishUnsubscribe();
-                finishUnsubscribe = () => {};
             });
 
             mediaRecorder.onstop = () => {
@@ -277,9 +275,8 @@
                 alert("Video recording failed. Please try again.");
                 if (mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
-                } else {
-                    cleanupAfterRecording();
                 }
+                cleanupAfterRecording();
             };
 
             mediaRecorder.start();
