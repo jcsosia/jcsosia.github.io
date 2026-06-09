@@ -176,18 +176,55 @@
                 exportBtn.textContent = "Export to Video";
             };
 
-            wavesurfer.setTime(0);
-
-            // Grab the active canvas layer
-            const canvas = document.querySelector('#waveform canvas');
-            if (!canvas || typeof canvas.captureStream !== 'function') {
-                alert("Video capture is not available on this browser.");
+            // Check captureStream support before doing any work
+            if (typeof document.createElement('canvas').captureStream !== 'function') {
+                alert("Video export is not supported on this browser.\n\nFor video export, please use Chrome or Firefox on a desktop or Android device.");
                 resetExportButton();
                 return;
             }
 
-            // Capture visual stream from canvas at 30fps
-            const videoStream = canvas.captureStream(30);
+            wavesurfer.setTime(0);
+
+            // WaveSurfer v7 renders inside a Shadow DOM, so a plain
+            // document.querySelector('#waveform canvas') returns null.
+            // Access the canvases through the shadow root instead.
+            const wrapper = wavesurfer.getWrapper();
+            const shadowRoot = wrapper?.shadowRoot;
+            const sourceCanvases = shadowRoot
+                ? Array.from(shadowRoot.querySelectorAll('canvas'))
+                : Array.from(document.querySelectorAll('#waveform canvas'));
+
+            if (sourceCanvases.length === 0) {
+                alert("Could not locate the waveform canvas. Please try again.");
+                resetExportButton();
+                return;
+            }
+
+            // Create a dedicated composite canvas so both the wave layer and
+            // the progress-colour layer are captured together in one stream.
+            const waveformEl = document.getElementById('waveform');
+            const recordCanvas = document.createElement('canvas');
+            const FALLBACK_WIDTH = 500;  // matches .player-container max-width
+            const FALLBACK_HEIGHT = 90;  // matches WaveSurfer height option
+            recordCanvas.width = waveformEl.offsetWidth || FALLBACK_WIDTH;
+            recordCanvas.height = waveformEl.offsetHeight || FALLBACK_HEIGHT;
+            const ctx = recordCanvas.getContext('2d');
+
+            let animFrameId = null;
+            const drawFrame = () => {
+                ctx.fillStyle = '#1e1e1e';
+                ctx.fillRect(0, 0, recordCanvas.width, recordCanvas.height);
+                sourceCanvases.forEach(c => {
+                    if (c.width > 0 && c.height > 0) {
+                        ctx.drawImage(c, 0, 0, recordCanvas.width, recordCanvas.height);
+                    }
+                });
+                animFrameId = requestAnimationFrame(drawFrame);
+            };
+            animFrameId = requestAnimationFrame(drawFrame);
+
+            // Capture visual stream from the composite canvas at 30 fps
+            const videoStream = recordCanvas.captureStream(30);
 
             // FIX 2: Safely target the core underlying Media Element stream for sound routing
             const audioElement = wavesurfer.getMediaElement();
@@ -206,6 +243,7 @@
             }
 
             const stopStreamTracks = () => {
+                cancelAnimationFrame(animFrameId);
                 combinedStream.getTracks().forEach(track => track.stop());
             };
 
