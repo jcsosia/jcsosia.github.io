@@ -124,9 +124,11 @@
         const exportBtn = document.getElementById('exportBtn');
         const fileNameDisplay = document.getElementById('fileName');
         let currentFileUrl = null;
-        window.addEventListener('beforeunload', () => {
+        const revokeCurrentFileUrl = () => {
             if (currentFileUrl) URL.revokeObjectURL(currentFileUrl);
-        });
+        };
+        window.addEventListener('beforeunload', revokeCurrentFileUrl);
+        window.addEventListener('pagehide', revokeCurrentFileUrl);
 
         // FIX 1: Correct handling of the file array index to halt rogue downloads
         fileInput.addEventListener('change', function(e) {
@@ -153,7 +155,10 @@
         // VIDEO EXPORT LOGIC
         exportBtn.addEventListener('click', async () => {
             if (!wavesurfer.getDuration()) {
-                alert("Please load an audio file before exporting.");
+                const message = currentFileUrl
+                    ? "Audio is still loading. Please wait, then try exporting again."
+                    : "Please load an audio file before exporting.";
+                alert(message);
                 return;
             }
             if (typeof MediaRecorder === 'undefined') {
