@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mobile Friendly Audio Bar Player & Video Exporter</title>
     <!-- Explicitly bundled v7 UMD distribution -->
-    <script src="https://unpkg.com"></script>
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
     <style>
         body {
             background-color: #121212;
@@ -123,6 +123,7 @@
         const playBtn = document.getElementById('playBtn');
         const exportBtn = document.getElementById('exportBtn');
         const fileNameDisplay = document.getElementById('fileName');
+        let currentFileUrl = null;
 
         // FIX 1: Correct handling of the file array index to halt rogue downloads
         fileInput.addEventListener('change', function(e) {
@@ -131,8 +132,9 @@
                 const file = files[0]; 
                 fileNameDisplay.textContent = file.name;
                 
-                const fileUrl = URL.createObjectURL(file);
-                wavesurfer.load(fileUrl);
+                if (currentFileUrl) URL.revokeObjectURL(currentFileUrl);
+                currentFileUrl = URL.createObjectURL(file);
+                wavesurfer.load(currentFileUrl);
                 
                 playBtn.style.display = 'block';
                 exportBtn.style.display = 'block';
@@ -147,6 +149,12 @@
 
         // VIDEO EXPORT LOGIC
         exportBtn.addEventListener('click', async () => {
+            if (!wavesurfer.getDuration()) return;
+            if (typeof MediaRecorder === 'undefined') {
+                alert("Video export is not supported in this browser.");
+                return;
+            }
+
             exportBtn.disabled = true;
             exportBtn.textContent = "Recording...";
 
@@ -215,7 +223,7 @@
                 exportBtn.textContent = "Export to Video";
             };
 
-            wavesurfer.on('finish', () => {
+            wavesurfer.once('finish', () => {
                 if (mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
                 }
