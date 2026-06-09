@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mobile Friendly Audio Bar Player & Video Exporter</title>
     <!-- Explicitly bundled v7 UMD distribution -->
-    <script src="https://unpkg.com"></script>
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
     <style>
         body {
             background-color: #121212;
@@ -123,6 +123,13 @@
         const playBtn = document.getElementById('playBtn');
         const exportBtn = document.getElementById('exportBtn');
         const fileNameDisplay = document.getElementById('fileName');
+        let currentFileUrl = null;
+        const revokeCurrentFileUrl = () => {
+            if (currentFileUrl) {
+                URL.revokeObjectURL(currentFileUrl);
+                currentFileUrl = null;
+            }
+        };
 
         // FIX 1: Correct handling of the file array index to halt rogue downloads
         fileInput.addEventListener('change', function(e) {
@@ -131,8 +138,9 @@
                 const file = files[0]; 
                 fileNameDisplay.textContent = file.name;
                 
-                const fileUrl = URL.createObjectURL(file);
-                wavesurfer.load(fileUrl);
+                revokeCurrentFileUrl();
+                currentFileUrl = URL.createObjectURL(file);
+                wavesurfer.load(currentFileUrl);
                 
                 playBtn.style.display = 'block';
                 exportBtn.style.display = 'block';
@@ -147,17 +155,34 @@
 
         // VIDEO EXPORT LOGIC
         exportBtn.addEventListener('click', async () => {
+            if (!currentFileUrl) {
+                alert("Please load an audio file before exporting.");
+                return;
+            }
+            const duration = wavesurfer.getDuration();
+            if (!Number.isFinite(duration) || duration <= 0) {
+                alert("Audio is still loading. Please wait, then try exporting again.");
+                return;
+            }
+            if (typeof MediaRecorder === 'undefined') {
+                alert("Video export is not supported in this browser.");
+                return;
+            }
+
             exportBtn.disabled = true;
             exportBtn.textContent = "Recording...";
+            const resetExportButton = () => {
+                exportBtn.disabled = false;
+                exportBtn.textContent = "Export to Video";
+            };
 
             wavesurfer.setTime(0);
 
             // Grab the active canvas layer
             const canvas = document.querySelector('#waveform canvas');
-            if (!canvas) {
-                alert("Waveform canvas not found.");
-                exportBtn.disabled = false;
-                exportBtn.textContent = "Export to Video";
+            if (!canvas || typeof canvas.captureStream !== 'function') {
+                alert("Video capture is not available on this browser.");
+                resetExportButton();
                 return;
             }
 
@@ -180,17 +205,29 @@
                 console.warn("Audio stream trace dropped. Outputting visual layer only.");
             }
 
-            // Standardize output formats across mobile safari and android chrome
-            let options = { mimeType: 'video/webm;codecs=vp9' };
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                options = { mimeType: 'video/webm' };
-            }
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                options = { mimeType: 'video/mp4' }; // Fallback container for older iOS
-            }
+            const stopStreamTracks = () => {
+                combinedStream.getTracks().forEach(track => track.stop());
+            };
 
-            const mediaRecorder = new MediaRecorder(combinedStream, options);
+            // Standardize output formats across mobile safari and android chrome
+            const mimeCandidates = ['video/webm;codecs=vp9', 'video/webm', 'video/mp4'];
+            const mimeType = mimeCandidates.find(type => MediaRecorder.isTypeSupported(type));
+            let mediaRecorder;
+            try {
+                mediaRecorder = mimeType
+                    ? new MediaRecorder(combinedStream, { mimeType })
+                    : new MediaRecorder(combinedStream);
+            } catch (error) {
+                console.error("Failed to initialize video recording:", error);
+                alert("Video export is not available on this browser.");
+                stopStreamTracks();
+                resetExportButton();
+                return;
+            }
             const recordedChunks = [];
+            let recorderErrored = false;
+            let isCleanedUp = false;
+            let unsubscribeFromFinish = () => {};
 
             mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
@@ -198,7 +235,25 @@
                 }
             };
 
+            const cleanupAfterRecording = () => {
+                if (isCleanedUp) return;
+                isCleanedUp = true;
+                stopStreamTracks();
+                resetExportButton();
+                unsubscribeFromFinish();
+            };
+
+            unsubscribeFromFinish = wavesurfer.on('finish', () => {
+                if (mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+            });
+
             mediaRecorder.onstop = () => {
+                if (recorderErrored) {
+                    cleanupAfterRecording();
+                    return;
+                }
                 const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
                 const url = URL.createObjectURL(blob);
                 
@@ -211,15 +266,18 @@
                 a.click();
                 document.body.removeChild(a);
 
-                exportBtn.disabled = false;
-                exportBtn.textContent = "Export to Video";
+                cleanupAfterRecording();
             };
 
-            wavesurfer.on('finish', () => {
+            mediaRecorder.onerror = (event) => {
+                console.error("MediaRecorder error:", event);
+                recorderErrored = true;
+                alert("Video recording failed. Please try again.");
                 if (mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
                 }
-            });
+                cleanupAfterRecording();
+            };
 
             mediaRecorder.start();
             wavesurfer.play();
