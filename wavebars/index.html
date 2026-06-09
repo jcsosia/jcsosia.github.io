@@ -226,6 +226,8 @@
             }
             const recordedChunks = [];
             let recorderErrored = false;
+            let isCleanedUp = false;
+            let finishUnsubscribe = () => {};
 
             mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
@@ -233,18 +235,25 @@
                 }
             };
 
-            const cleanupFinish = wavesurfer.on('finish', () => {
+            const cleanupAfterRecording = () => {
+                if (isCleanedUp) return;
+                isCleanedUp = true;
+                stopStreamTracks();
+                resetExportButton();
+                finishUnsubscribe();
+            };
+
+            finishUnsubscribe = wavesurfer.on('finish', () => {
                 if (mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
                 }
-                cleanupFinish();
+                finishUnsubscribe();
+                finishUnsubscribe = () => {};
             });
 
             mediaRecorder.onstop = () => {
                 if (recorderErrored) {
-                    stopStreamTracks();
-                    resetExportButton();
-                    cleanupFinish();
+                    cleanupAfterRecording();
                     return;
                 }
                 const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
@@ -259,9 +268,7 @@
                 a.click();
                 document.body.removeChild(a);
 
-                stopStreamTracks();
-                resetExportButton();
-                cleanupFinish();
+                cleanupAfterRecording();
             };
 
             mediaRecorder.onerror = (event) => {
@@ -271,9 +278,7 @@
                 if (mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
                 } else {
-                    stopStreamTracks();
-                    resetExportButton();
-                    cleanupFinish();
+                    cleanupAfterRecording();
                 }
             };
 
