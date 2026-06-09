@@ -171,15 +171,18 @@
 
             exportBtn.disabled = true;
             exportBtn.textContent = "Recording...";
+            const resetExportButton = () => {
+                exportBtn.disabled = false;
+                exportBtn.textContent = "Export to Video";
+            };
 
             wavesurfer.setTime(0);
 
             // Grab the active canvas layer
             const canvas = document.querySelector('#waveform canvas');
-            if (!canvas) {
-                alert("Waveform canvas not found.");
-                exportBtn.disabled = false;
-                exportBtn.textContent = "Export to Video";
+            if (!canvas || typeof canvas.captureStream !== 'function') {
+                alert("Video capture is not available on this browser.");
+                resetExportButton();
                 return;
             }
 
@@ -202,17 +205,27 @@
                 console.warn("Audio stream trace dropped. Outputting visual layer only.");
             }
 
-            // Standardize output formats across mobile safari and android chrome
-            let options = { mimeType: 'video/webm;codecs=vp9' };
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                options = { mimeType: 'video/webm' };
-            }
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                options = { mimeType: 'video/mp4' }; // Fallback container for older iOS
-            }
+            const stopStreamTracks = () => {
+                combinedStream.getTracks().forEach(track => track.stop());
+            };
 
-            const mediaRecorder = new MediaRecorder(combinedStream, options);
+            // Standardize output formats across mobile safari and android chrome
+            const mimeCandidates = ['video/webm;codecs=vp9', 'video/webm', 'video/mp4'];
+            const mimeType = mimeCandidates.find(type => MediaRecorder.isTypeSupported(type));
+            let mediaRecorder;
+            try {
+                mediaRecorder = mimeType
+                    ? new MediaRecorder(combinedStream, { mimeType })
+                    : new MediaRecorder(combinedStream);
+            } catch (error) {
+                console.error("Failed to initialize video recording:", error);
+                alert("Video export is not available on this browser.");
+                stopStreamTracks();
+                resetExportButton();
+                return;
+            }
             const recordedChunks = [];
+            let recorderErrored = false;
 
             mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
@@ -220,7 +233,19 @@
                 }
             };
 
+            const unsubscribeFinish = wavesurfer.on('finish', () => {
+                if (mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+            });
+
             mediaRecorder.onstop = () => {
+                if (recorderErrored) {
+                    stopStreamTracks();
+                    resetExportButton();
+                    unsubscribeFinish();
+                    return;
+                }
                 const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
                 const url = URL.createObjectURL(blob);
                 
@@ -232,17 +257,24 @@
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-                exportBtn.disabled = false;
-                exportBtn.textContent = "Export to Video";
+                stopStreamTracks();
+                resetExportButton();
                 unsubscribeFinish();
             };
 
-            const unsubscribeFinish = wavesurfer.on('finish', () => {
+            mediaRecorder.onerror = () => {
+                recorderErrored = true;
+                alert("Video recording failed. Please try again.");
                 if (mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
+                } else {
+                    stopStreamTracks();
+                    resetExportButton();
+                    unsubscribeFinish();
                 }
-            });
+            };
 
             mediaRecorder.start();
             wavesurfer.play();
