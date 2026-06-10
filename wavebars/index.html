@@ -1321,6 +1321,14 @@
                     exportBtn.disabled = false;
                     exportBtn.textContent = "Export to Video";
                 };
+                const exportFrameDelay = 1000 / 30;
+                const waitForNextExportTick = () => new Promise((resolve) => {
+                    if (document.visibilityState === 'visible') {
+                        requestAnimationFrame(() => resolve());
+                        return;
+                    }
+                    window.setTimeout(resolve, exportFrameDelay);
+                });
 
                 // Check captureStream support before doing any work
                 if (typeof document.createElement('canvas').captureStream !== 'function') {
@@ -1331,7 +1339,7 @@
 
                 wavesurfer.pause();
                 wavesurfer.setTime(0);
-                await new Promise(requestAnimationFrame);
+                await waitForNextExportTick();
 
                 // In WaveSurfer v7 the renderer wrapper lives inside an injected
                 // shadow tree, so getWrapper() points at the waveform wrapper,
@@ -1352,8 +1360,6 @@
                     ),
                 ].filter((canvas, index, allCanvases) => allCanvases.indexOf(canvas) === index);
 
-                const progressLayer = wrapper?.querySelector('.progress')
-                    ?? (rendererRoot instanceof ShadowRoot ? rendererRoot.querySelector('.progress') : null);
                 const wrapperRect = wrapper?.getBoundingClientRect();
 
                 if (!wrapperRect || wrapperRect.width <= 0 || wrapperRect.height <= 0 || sourceCanvases.length === 0) {
@@ -1402,6 +1408,12 @@
                 }));
                 const baseLayers = layeredCanvases.filter(layer => !layer.isProgressLayer);
                 const progressLayers = layeredCanvases.filter(layer => layer.isProgressLayer);
+                const progressBounds = progressLayers.length > 0
+                    ? progressLayers.reduce((bounds, { rect }) => ({
+                        left: Math.min(bounds.left, rect.left),
+                        right: Math.max(bounds.right, rect.right),
+                    }), { left: Infinity, right: -Infinity })
+                    : null;
 
                 const drawLayer = ({ canvas, rect }) => {
                     if (canvas.width <= 0 || canvas.height <= 0 || rect.width <= 0 || rect.height <= 0) {
@@ -1416,18 +1428,26 @@
                 };
 
                 let animFrameId = null;
+                let exportTimerId = null;
                 const bgFill = prefs.backgroundColor || '#1e1e1e';
-                const drawFrame = () => {
+                const getPlaybackRatio = () => {
+                    if (!Number.isFinite(duration) || duration <= 0) return 0;
+                    const currentTime = typeof wavesurfer.getCurrentTime === 'function' ? wavesurfer.getCurrentTime() : 0;
+                    return Math.min(Math.max(currentTime / duration, 0), 1);
+                };
+                const renderFrame = (forcedProgressRatio) => {
                     ctx.fillStyle = bgFill;
                     ctx.fillRect(0, 0, recordCanvas.width, recordCanvas.height);
                     baseLayers.forEach(drawLayer);
 
-                    if (progressLayers.length > 0 && progressLayer) {
-                        const progressRect = progressLayer.getBoundingClientRect();
-                        const clipLeft = Math.max(0, exportPadding + (progressRect.left - wrapperRect.left) * scaleX);
+                    if (progressLayers.length > 0 && progressBounds) {
+                        const progressRatio = Number.isFinite(forcedProgressRatio)
+                            ? forcedProgressRatio
+                            : getPlaybackRatio();
+                        const clipLeft = Math.max(0, exportPadding + (progressBounds.left - wrapperRect.left) * scaleX);
                         const clipRight = Math.min(
                             recordCanvas.width - exportPadding,
-                            exportPadding + (progressRect.right - wrapperRect.left) * scaleX
+                            clipLeft + ((progressBounds.right - progressBounds.left) * scaleX * progressRatio)
                         );
                         const clipWidth = Math.max(0, clipRight - clipLeft);
 
@@ -1441,7 +1461,20 @@
                         }
                     }
 
-                    animFrameId = requestAnimationFrame(drawFrame);
+                };
+                const scheduleNextDraw = () => {
+                    if (document.visibilityState === 'visible') {
+                        animFrameId = requestAnimationFrame(drawFrame);
+                        exportTimerId = null;
+                        return;
+                    }
+                    exportTimerId = window.setTimeout(drawFrame, exportFrameDelay);
+                    animFrameId = null;
+                };
+                const drawFrame = () => {
+                    renderFrame();
+
+                    scheduleNextDraw();
                 };
                 drawFrame();
 
@@ -1465,7 +1498,14 @@
                 }
 
                 const stopStreamTracks = () => {
-                    cancelAnimationFrame(animFrameId);
+                    if (animFrameId !== null) {
+                        cancelAnimationFrame(animFrameId);
+                        animFrameId = null;
+                    }
+                    if (exportTimerId !== null) {
+                        clearTimeout(exportTimerId);
+                        exportTimerId = null;
+                    }
                     combinedStream.getTracks().forEach(track => track.stop());
                 };
 
@@ -1515,6 +1555,7 @@
                 };
 
                 unsubscribeFromFinish = wavesurfer.on('finish', () => {
+                    renderFrame(1);
                     if (mediaRecorder.state !== 'inactive') {
                         mediaRecorder.stop();
                     }
