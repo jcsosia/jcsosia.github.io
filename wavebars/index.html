@@ -305,11 +305,13 @@
             const exportBtn = document.getElementById('exportBtn');
             const fileNameDisplay = document.getElementById('fileName');
             let currentFileUrl = null;
+            let currentFileName = null;
             const revokeCurrentFileUrl = () => {
                 if (currentFileUrl) {
                     URL.revokeObjectURL(currentFileUrl);
                     currentFileUrl = null;
                 }
+                currentFileName = null;
             };
 
             // Color presets and UI
@@ -499,6 +501,7 @@
 
                     revokeCurrentFileUrl();
                     currentFileUrl = URL.createObjectURL(file);
+                    currentFileName = file.name;
                     wavesurfer.load(currentFileUrl);
 
                     playBtn.style.display = 'block';
@@ -742,8 +745,10 @@
                     const a = document.createElement('a');
                     a.href = url;
                     // Save with matching native format tag
-                    const extension = mediaRecorder.mimeType.includes('mp4') ? 'mp4' : 'webm';
-                    a.download = `waveform_export.${extension}`;
+                    const extension = mediaRecorder.mimeType && mediaRecorder.mimeType.includes('mp4') ? 'mp4' : 'webm';
+                    // Use original filename if available, otherwise fallback
+                    const baseName = currentFileName ? currentFileName.replace(/\.[^/.]+$/, '') : 'waveform_export';
+                    a.download = `${baseName}-wavebars.${extension}`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
