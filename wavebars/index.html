@@ -206,6 +206,30 @@
             border-color: rgba(255, 255, 255, 0.25);
         }
 
+        /* Keep label text readable on variable backgrounds */
+        .swatch-label,
+        #fileName,
+        .drop-label,
+        .upload-label {
+            transition: color 160ms ease, text-shadow 160ms ease;
+        }
+
+        .color-contrast-white {
+            color: #ffffff !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+        }
+
+        .color-contrast-black {
+            color: #000000 !important;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        /* Ensure the upload button keeps its intended foreground on top of its dark background */
+        .upload-label.color-contrast-black {
+            color: #ffffff !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+        }
+
         /* Toast */
         .toast {
             position: fixed;
@@ -1045,6 +1069,7 @@
                         savePrefs(prefs);
                         applyColors(prefs);
                         updateSelectedSwatches();
+                        try { if (typeof applyLabelContrast === 'function') applyLabelContrast(prefs.backgroundColor); } catch (e) { }
                     });
                     container.appendChild(s);
                 });
@@ -1056,6 +1081,84 @@
             renderSwatches('progressSwatches', WAVE_PRESETS, 'progressColor');
             applyColors(prefs);
             updateSelectedSwatches();
+
+            // Contrast helpers: choose readable label color against chosen background
+            const luminance = (hex) => {
+                if (!hex) return 0;
+                const h = hex.replace('#', '').trim();
+                const bigint = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+                const r = (bigint >> 16) & 255;
+                const g = (bigint >> 8) & 255;
+                const b = bigint & 255;
+                const srgb = [r, g, b].map(v => {
+                    v /= 255;
+                    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+                });
+                return 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2];
+            };
+
+            const applyLabelContrast = (bgHex) => {
+                const thresh = 0.5; // tuned threshold between dark and light
+                const lbls = document.querySelectorAll('.swatch-label, #fileName, .drop-label, .upload-label');
+
+                const parseCssColor = (css) => {
+                    if (!css) return null;
+                    css = css.trim();
+                    if (css.startsWith('rgb')) {
+                        const parts = css.replace(/rgba?\(|\)|\s/g, '').split(',').map(Number);
+                        return { r: parts[0], g: parts[1], b: parts[2] };
+                    }
+                    if (css.startsWith('#')) {
+                        let hex = css.slice(1);
+                        if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+                        const int = parseInt(hex, 16);
+                        return { r: (int >> 16) & 255, g: (int >> 8) & 255, b: int & 255 };
+                    }
+                    return null;
+                };
+
+                const srgbToLinear = (v) => {
+                    v = v / 255;
+                    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+                };
+
+                const lumFromRgb = ({ r, g, b }) => {
+                    const rs = srgbToLinear(r);
+                    const gs = srgbToLinear(g);
+                    const bs = srgbToLinear(b);
+                    return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+                };
+
+                const containerBg = window.getComputedStyle(document.querySelector('.player-container')).backgroundColor;
+
+                lbls.forEach(el => {
+                    // Determine which background to measure: use element's own background if solid (upload button), otherwise the selected bg
+                    const elBgCss = window.getComputedStyle(el).backgroundColor;
+                    const elBg = (el.classList.contains('upload-label') && elBgCss && elBgCss !== 'rgba(0, 0, 0, 0)' && elBgCss !== 'transparent')
+                        ? elBgCss
+                        : (bgHex || containerBg || '#121212');
+
+                    const rgb = parseCssColor(elBg);
+                    const l = rgb ? lumFromRgb(rgb) : 0;
+                    const useWhite = l < thresh;
+                    el.classList.toggle('color-contrast-white', useWhite);
+                    el.classList.toggle('color-contrast-black', !useWhite);
+                });
+            };
+
+            // Ensure contrast set on initial load
+            applyLabelContrast(prefs.backgroundColor);
+
+            // Update applyLabelContrast whenever background swatch clicked
+            const bgContainer = document.getElementById('bgSwatches');
+            if (bgContainer) {
+                bgContainer.addEventListener('click', (e) => {
+                    const el = e.target.closest && e.target.closest('.swatch');
+                    if (!el) return;
+                    const c = el.dataset.color;
+                    applyLabelContrast(c);
+                });
+            }
 
             // Reset to defaults handler
             const resetBtn = document.getElementById('resetBtn');
