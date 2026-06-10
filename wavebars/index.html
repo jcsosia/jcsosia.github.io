@@ -77,6 +77,52 @@
             cursor: pointer;
         }
 
+        /* Drag-and-drop wrapper + overlay */
+        .waveform-drop {
+            position: relative;
+            border-radius: 8px;
+            overflow: visible;
+        }
+
+        .drop-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 15px;
+            font-weight: 600;
+            opacity: 1;
+            transition: background 160ms ease, opacity 160ms ease, transform 160ms ease;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .drop-overlay .drop-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 14px;
+            border-radius: 10px;
+            background: transparent;
+            max-width: 100%;
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+
+        .waveform-drop.dragover .drop-overlay .drop-label {
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px dashed rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            transform: translateY(0);
+            pointer-events: none;
+            opacity: 1;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+            color: #ffffff;
+        }
+
         .btn {
             color: white;
             border: none;
@@ -487,7 +533,11 @@
                             <div id="fileName"
                                 style="font-size:14px;color:#aaaaaa;margin-bottom:15px;word-break:break-all;">Select an
                                 audio file to begin</div>
-                            <div id="waveform"></div>
+                            <div id="waveformDrop" class="waveform-drop">
+                                <div id="waveform"></div>
+                                <div id="dropOverlay" class="drop-overlay" aria-hidden="true"><span
+                                        class="drop-label">Drag an audio file here or click "Upload audio"</span></div>
+                            </div>
 
                             <div class="controls-group">
                                 <label for="fileInput" class="upload-label">Upload audio</label>
@@ -1077,26 +1127,70 @@
 
             document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && resetToast && resetToast.classList.contains('show')) hideResetToast(); });
 
-            // FIX 1: Correct handling of the file array index to halt rogue downloads
+            // FIX 1: Centralize file handling so both input and drag/drop use the same flow
+            const handleFile = (file) => {
+                if (!file) return;
+                fileNameDisplay.textContent = file.name;
+
+                revokeCurrentFileUrl();
+                currentFileUrl = URL.createObjectURL(file);
+                currentFileName = file.name;
+                wavesurfer.load(currentFileUrl);
+
+                playBtn.style.display = 'block';
+                exportBtn.style.display = 'block';
+                exportBtn.disabled = false;
+                exportBtn.textContent = "Export to Video";
+                const exportNote = document.getElementById('exportNote');
+                if (exportNote) exportNote.classList.add('visible');
+
+                const dropOverlay = document.getElementById('dropOverlay');
+                if (dropOverlay) dropOverlay.style.display = 'none';
+            };
+
             fileInput.addEventListener('change', function (e) {
                 const files = e.target.files;
                 if (files && files.length > 0) {
-                    const file = files[0];
-                    fileNameDisplay.textContent = file.name;
-
-                    revokeCurrentFileUrl();
-                    currentFileUrl = URL.createObjectURL(file);
-                    currentFileName = file.name;
-                    wavesurfer.load(currentFileUrl);
-
-                    playBtn.style.display = 'block';
-                    exportBtn.style.display = 'block';
-                    exportBtn.disabled = false;
-                    exportBtn.textContent = "Export to Video";
-                    const exportNote = document.getElementById('exportNote');
-                    if (exportNote) exportNote.classList.add('visible');
+                    handleFile(files[0]);
                 }
             });
+
+            // Drag-and-drop handlers for desktop browsers
+            const waveformDrop = document.getElementById('waveformDrop');
+            const dropOverlay = document.getElementById('dropOverlay');
+
+            if (waveformDrop) {
+                ['dragenter', 'dragover'].forEach(ev => {
+                    waveformDrop.addEventListener(ev, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        waveformDrop.classList.add('dragover');
+                        const label = dropOverlay && dropOverlay.querySelector('.drop-label');
+                        if (label) label.textContent = 'Drop audio file to upload';
+                    });
+                });
+
+                ['dragleave', 'drop'].forEach(ev => {
+                    waveformDrop.addEventListener(ev, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        waveformDrop.classList.remove('dragover');
+                        const label = dropOverlay && dropOverlay.querySelector('.drop-label');
+                        if (label && ev === 'dragleave') label.textContent = 'Drag an audio file here or click "Upload audio"';
+                    });
+                });
+
+                waveformDrop.addEventListener('drop', (e) => {
+                    const dt = e.dataTransfer;
+                    if (dt && dt.files && dt.files.length > 0) {
+                        const file = dt.files[0];
+                        handleFile(file);
+                    }
+                });
+
+                // Prevent the browser from navigating away when files are dropped outside
+                ['dragover', 'drop'].forEach(ev => document.addEventListener(ev, (e) => { e.preventDefault(); }));
+            }
 
             playBtn.addEventListener('click', () => {
                 wavesurfer.playPause();
