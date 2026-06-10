@@ -79,6 +79,11 @@
             box-sizing: border-box;
         }
 
+        .btn.reset-btn {
+            display: block;
+            background: #666666;
+        }
+
         .play-btn {
             background: #ff5500;
             /* SoundCloud orange */
@@ -100,6 +105,135 @@
             margin-bottom: 15px;
             word-break: break-all;
         }
+
+        /* Swatch UI */
+        .swatch-panel {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        .swatch-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .swatch-label {
+            width: 110px;
+            color: #cccccc;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .swatches {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .swatch {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+            border: 2px solid transparent;
+        }
+
+        .swatch.selected {
+            outline: 2px solid rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            bottom: 24px;
+            background: rgba(20, 20, 20, 0.96);
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            z-index: 1200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 220ms cubic-bezier(.2, .9, .2, 1), transform 220ms cubic-bezier(.2, .9, .2, 1);
+            font-size: 14px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(-6px);
+        }
+
+        .toast .toast-msg {
+            color: #eaeaea;
+        }
+
+        .toast .toast-actions button {
+            margin-left: 6px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .toast .confirm {
+            background: #ff5500;
+            color: #fff;
+        }
+
+        .toast .cancel {
+            background: #555555;
+            color: #fff;
+        }
+
+        /* Snackbar for undo */
+        .snackbar {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%) translateY(0);
+            bottom: 90px;
+            min-width: 220px;
+            background: rgba(18, 18, 18, 0.98);
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            z-index: 1200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 220ms cubic-bezier(.2, .9, .2, 1), transform 220ms cubic-bezier(.2, .9, .2, 1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .snackbar.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(-6px);
+        }
+
+        .snackbar button {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -113,8 +247,24 @@
             <label for="fileInput" class="upload-label">Choose Audio File</label>
             <input type="file" id="fileInput" accept="audio/*">
 
+            <div class="swatch-panel">
+                <div class="swatch-row">
+                    <div class="swatch-label">Background</div>
+                    <div id="bgSwatches" class="swatches"></div>
+                </div>
+                <div class="swatch-row">
+                    <div class="swatch-label">Wave Color</div>
+                    <div id="waveSwatches" class="swatches"></div>
+                </div>
+                <div class="swatch-row">
+                    <div class="swatch-label">Progress Color</div>
+                    <div id="progressSwatches" class="swatches"></div>
+                </div>
+            </div>
+
             <button id="playBtn" class="btn play-btn">Play / Pause</button>
             <button id="exportBtn" class="btn export-btn">Export to Video</button>
+            <button id="resetBtn" class="btn reset-btn">Reset to Defaults</button>
         </div>
     </div>
 
@@ -122,8 +272,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof WaveSurfer === 'undefined') return;
 
-            // Initialize the player
-            const wavesurfer = WaveSurfer.create({
+            // Initialize the player (factory so we can recreate with new colors)
+            let wavesurfer;
+            const defaultOptions = {
                 container: '#waveform',
                 waveColor: '#444444',
                 progressColor: '#ff5500',
@@ -132,7 +283,22 @@
                 barGap: 3,
                 barRadius: 3,
                 cursorWidth: 0,
-            });
+            };
+
+            const createWaveSurfer = (opts = {}) => {
+                const options = Object.assign({}, defaultOptions, opts);
+                try {
+                    if (wavesurfer && typeof wavesurfer.destroy === 'function') {
+                        wavesurfer.destroy();
+                    }
+                } catch (e) {
+                    console.warn('Error destroying wavesurfer instance', e);
+                }
+                wavesurfer = WaveSurfer.create(options);
+                return wavesurfer;
+            };
+
+            createWaveSurfer();
 
             const fileInput = document.getElementById('fileInput');
             const playBtn = document.getElementById('playBtn');
@@ -145,6 +311,184 @@
                     currentFileUrl = null;
                 }
             };
+
+            // Color presets and UI
+            const BG_PRESETS = ['#121212', '#1e1e1e', '#000000', '#ffffff', '#0D47A1', '#00BFA5', '#FF5252', '#FFD740', '#8E24AA'];
+            const WAVE_PRESETS = ['#444444', '#ff5500', '#000000', '#ffffff', '#00C853', '#6200EA', '#03A9F4', '#FF4081', '#FFC107'];
+
+            const prefsKey = 'wavebars_color_prefs';
+            const defaultPrefs = { waveColor: defaultOptions.waveColor, progressColor: defaultOptions.progressColor, backgroundColor: '#121212' };
+
+            const loadPrefs = () => {
+                try {
+                    const raw = localStorage.getItem(prefsKey);
+                    return raw ? JSON.parse(raw) : defaultPrefs;
+                } catch (e) {
+                    return defaultPrefs;
+                }
+            };
+
+            const savePrefs = (p) => {
+                try { localStorage.setItem(prefsKey, JSON.stringify(p)); } catch (e) { }
+            };
+
+            let prefs = loadPrefs();
+
+            const applyColors = ({ waveColor, progressColor, backgroundColor } = {}) => {
+                // Background
+                if (backgroundColor) {
+                    document.body.style.backgroundColor = backgroundColor;
+                    const pc = document.querySelector('.player-container');
+                    if (pc) pc.style.background = backgroundColor === '#121212' ? '#1e1e1e' : backgroundColor;
+                }
+
+                // Update defaults so future recreations use chosen colors
+                if (waveColor) defaultOptions.waveColor = waveColor;
+                if (progressColor) defaultOptions.progressColor = progressColor;
+
+                if (!wavesurfer) return;
+
+                // Try fast-path methods then fallback to recreating the instance
+                let triedFast = false;
+                try {
+                    if (waveColor && typeof wavesurfer.setWaveColor === 'function') {
+                        wavesurfer.setWaveColor(waveColor);
+                        triedFast = true;
+                    }
+                    if (progressColor && typeof wavesurfer.setProgressColor === 'function') {
+                        wavesurfer.setProgressColor(progressColor);
+                        triedFast = true;
+                    }
+                } catch (e) {
+                    triedFast = false;
+                }
+
+                if (!triedFast) {
+                    // Recreate to force the renderer to pick up new colors
+                    const wasPlaying = typeof wavesurfer.isPlaying === 'function' ? wavesurfer.isPlaying() : false;
+                    const currentTime = typeof wavesurfer.getCurrentTime === 'function' ? wavesurfer.getCurrentTime() : 0;
+                    const src = currentFileUrl;
+                    createWaveSurfer({ waveColor: waveColor || defaultOptions.waveColor, progressColor: progressColor || defaultOptions.progressColor });
+                    if (src) {
+                        wavesurfer.load(src);
+                        wavesurfer.on('ready', () => {
+                            try { wavesurfer.setTime(currentTime); if (wasPlaying) wavesurfer.play(); } catch (e) { }
+                        });
+                    }
+                }
+            };
+
+            const updateSelectedSwatches = () => {
+                ['bgSwatches', 'waveSwatches', 'progressSwatches'].forEach(id => {
+                    const container = document.getElementById(id);
+                    if (!container) return;
+                    Array.from(container.children).forEach(el => {
+                        const color = el.dataset.color;
+                        el.classList.toggle('selected', (
+                            (id === 'bgSwatches' && color.toLowerCase() === (prefs.backgroundColor || '').toLowerCase()) ||
+                            (id === 'waveSwatches' && color.toLowerCase() === (prefs.waveColor || '').toLowerCase()) ||
+                            (id === 'progressSwatches' && color.toLowerCase() === (prefs.progressColor || '').toLowerCase())
+                        ));
+                    });
+                });
+            };
+
+            const renderSwatches = (containerId, presets, key) => {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+                container.innerHTML = '';
+                presets.forEach(color => {
+                    const s = document.createElement('div');
+                    s.className = 'swatch';
+                    s.style.background = color;
+                    s.dataset.color = color;
+                    s.title = color;
+                    s.addEventListener('click', () => {
+                        prefs = Object.assign({}, prefs, { [key]: color });
+                        savePrefs(prefs);
+                        applyColors(prefs);
+                        updateSelectedSwatches();
+                    });
+                    container.appendChild(s);
+                });
+            };
+
+            // Render swatches and apply saved prefs
+            renderSwatches('bgSwatches', BG_PRESETS, 'backgroundColor');
+            renderSwatches('waveSwatches', WAVE_PRESETS, 'waveColor');
+            renderSwatches('progressSwatches', WAVE_PRESETS, 'progressColor');
+            applyColors(prefs);
+            updateSelectedSwatches();
+
+            // Reset to defaults handler
+            const resetBtn = document.getElementById('resetBtn');
+            if (resetBtn) {
+                // show confirmation toast first
+                resetBtn.addEventListener('click', () => {
+                    const toast = document.getElementById('resetToast');
+                    if (toast) toast.classList.add('show');
+                });
+            }
+
+            // Toast handlers with auto-hide + undo snackbar
+            const resetToast = document.getElementById('resetToast');
+            const confirmReset = document.getElementById('confirmReset');
+            const cancelReset = document.getElementById('cancelReset');
+            const undoSnackbar = document.getElementById('undoSnackbar');
+            const undoBtn = document.getElementById('undoBtn');
+
+            let toastAutoHideTimer = null;
+            let snackbarTimer = null;
+            let lastPrefsSnapshot = null;
+
+            const hideResetToast = () => {
+                if (resetToast) resetToast.classList.remove('show');
+                if (toastAutoHideTimer) { clearTimeout(toastAutoHideTimer); toastAutoHideTimer = null; }
+            };
+
+            const showResetToast = () => {
+                if (!resetToast) return;
+                resetToast.classList.add('show');
+                if (toastAutoHideTimer) clearTimeout(toastAutoHideTimer);
+                toastAutoHideTimer = setTimeout(() => hideResetToast(), 6000);
+            };
+
+            const hideSnackbar = () => {
+                if (undoSnackbar) undoSnackbar.classList.remove('show');
+                if (snackbarTimer) { clearTimeout(snackbarTimer); snackbarTimer = null; }
+                lastPrefsSnapshot = null;
+            };
+
+            const showSnackbar = (prevPrefs) => {
+                if (!undoSnackbar) return;
+                lastPrefsSnapshot = prevPrefs ? Object.assign({}, prevPrefs) : null;
+                undoSnackbar.classList.add('show');
+                if (snackbarTimer) clearTimeout(snackbarTimer);
+                snackbarTimer = setTimeout(() => { hideSnackbar(); }, 5000);
+            };
+
+            if (cancelReset) cancelReset.addEventListener('click', hideResetToast);
+            if (confirmReset) confirmReset.addEventListener('click', () => {
+                // snapshot previous prefs for undo
+                const prev = Object.assign({}, prefs);
+                prefs = Object.assign({}, defaultPrefs);
+                savePrefs(prefs);
+                applyColors(prefs);
+                updateSelectedSwatches();
+                hideResetToast();
+                showSnackbar(prev);
+            });
+
+            if (undoBtn) undoBtn.addEventListener('click', () => {
+                if (!lastPrefsSnapshot) { hideSnackbar(); return; }
+                prefs = Object.assign({}, lastPrefsSnapshot);
+                savePrefs(prefs);
+                applyColors(prefs);
+                updateSelectedSwatches();
+                hideSnackbar();
+            });
+
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && resetToast && resetToast.classList.contains('show')) hideResetToast(); });
 
             // FIX 1: Correct handling of the file array index to halt rogue downloads
             fileInput.addEventListener('change', function (e) {
@@ -422,6 +766,21 @@
             });
         });
     </script>
+
+    <!-- Reset confirmation toast -->
+    <div id="resetToast" class="toast" aria-hidden="true">
+        <div class="toast-msg">Reset colors to defaults?</div>
+        <div class="toast-actions">
+            <button id="confirmReset" class="confirm">Reset</button>
+            <button id="cancelReset" class="cancel">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Undo snackbar shown after reset -->
+    <div id="undoSnackbar" class="snackbar" aria-hidden="true">
+        <div class="snack-msg">Colors reset</div>
+        <div class="snack-action"><button id="undoBtn">Undo</button></div>
+    </div>
 
 </body>
 
