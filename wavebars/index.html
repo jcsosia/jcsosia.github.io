@@ -1510,7 +1510,13 @@
                 };
 
                 // Standardize output formats across mobile safari and android chrome
-                const mimeCandidates = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
+                const mimeCandidates = [
+                    'video/webm;codecs=vp8,opus',
+                    'video/webm;codecs=vp8',
+                    'video/webm',
+                    'video/webm;codecs=vp9',
+                    'video/mp4'
+                ];
                 const mimeType = mimeCandidates.find(type => MediaRecorder.isTypeSupported(type));
                 const hasAudioTrack = combinedStream.getAudioTracks().length > 0;
                 const recorderOptions = {
