@@ -1427,6 +1427,18 @@
                     ctx.drawImage(canvas, destX, destY, destWidth, destHeight);
                 };
 
+                // On slower machines, captureStream(30) can stamp sparse canvas updates onto a
+                // 30 fps track clock, which shortens the video stream while audio keeps running.
+                // Capture at 0 fps and request a frame after each actual render when supported.
+                const supportsManualFrameRequests = typeof HTMLCanvasElement.prototype.captureStream === 'function';
+                const videoStream = recordCanvas.captureStream(supportsManualFrameRequests ? 0 : 15);
+                const videoTrack = videoStream.getVideoTracks()[0] || null;
+                const requestVideoFrame = () => {
+                    if (videoTrack && typeof videoTrack.requestFrame === 'function') {
+                        videoTrack.requestFrame();
+                    }
+                };
+
                 let animFrameId = null;
                 let exportTimerId = null;
                 const bgFill = prefs.backgroundColor || '#1e1e1e';
@@ -1473,13 +1485,11 @@
                 };
                 const drawFrame = () => {
                     renderFrame();
+                    requestVideoFrame();
 
                     scheduleNextDraw();
                 };
                 drawFrame();
-
-                // Capture visual stream from the composite canvas at 30 fps
-                const videoStream = recordCanvas.captureStream(30);
 
                 // FIX 2: Safely target the core underlying Media Element stream for sound routing
                 const audioElement = wavesurfer.getMediaElement();
