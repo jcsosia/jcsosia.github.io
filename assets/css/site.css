@@ -523,6 +523,12 @@ h1 {
 .project-card {
     display: grid;
     gap: 20px;
+    margin-top: 20px;
+}
+
+.project-card-main {
+    display: grid;
+    gap: 10px;
 }
 
 .project-card h3 {
