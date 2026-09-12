@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description"
-        content="Submit HatSwap bugs, feature requests, or general feedback through focused GitHub issue templates." />
-    <title>HatSwap Feedback</title>
+        content="Submit HatSwap bug reports, feature requests, or questions directly to our support inbox at support@sosiacollective.com." />
+    <title>HatSwap Feedback & Support</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -23,7 +23,7 @@
                     <span class="brand-mark">H</span>
                     <span class="brand-copy">
                         <strong>HatSwap Feedback</strong>
-                        <span>Choose the right issue form for the kind of feedback you want to send</span>
+                        <span>Direct email support at support@sosiacollective.com</span>
                     </span>
                 </a>
                 <nav class="topnav" aria-label="Primary">
@@ -36,48 +36,45 @@
             <main>
                 <section class="hero" aria-labelledby="feedback-hero-title">
                     <div class="hero-copy">
-                        <p class="eyebrow">Project feedback hub</p>
+                        <p class="eyebrow">Project feedback & support hub</p>
                         <h1 id="feedback-hero-title">Tell us what needs fixing, building, or polishing.</h1>
                         <p>
-                            This page routes you to a focused GitHub issue form for the exact type of
-                            feedback you have. Pick the path that fits best and give the details once!
+                            We love hearing from users! Send your thoughts, bug reports, or feature ideas straight to our inbox at
+                            <strong><a href="mailto:support@sosiacollective.com" style="color: var(--accent);">support@sosiacollective.com</a></strong>.
+                            We read every message and respond personally—no third-party accounts required.
                         </p>
                         <div class="hero-actions">
-                            <a class="button primary" data-feedback-type="bug" data-feedback-template="bug_report.yml"
-                                href="https://github.com/jcsosia/jcsosia.github.io/issues/new?template=bug_report.yml">Report
-                                a bug</a>
-                            <a class="button secondary" data-feedback-type="feature"
-                                data-feedback-template="feature_request.yml"
-                                href="https://github.com/jcsosia/jcsosia.github.io/issues/new?template=feature_request.yml">Request
-                                a feature</a>
+                            <a class="button primary" data-mailto-trigger="general"
+                                href="mailto:support@sosiacollective.com?subject=%5BHatSwap%20Feedback%5D">Email support</a>
+                            <button class="button secondary" type="button" data-copy-email>
+                                Copy email address
+                            </button>
                         </div>
                     </div>
 
-                    <aside class="hero-card" aria-label="Feedback instructions">
+                    <aside class="hero-card" aria-label="Support inbox and instructions">
                         <div class="feedback-note">
-                            <p class="panel-label">Before you submit</p>
-                            <h3>Choose the most specific form.</h3>
+                            <p class="panel-label">Direct Inbox</p>
+                            <h3>support@sosiacollective.com</h3>
                             <p>
-                                Bug reports work best when you can describe steps to reproduce. Feature
-                                requests are strongest when they explain the problem first, then the proposed
-                                solution.
+                                Every message goes straight to the developer. Reach out anytime with questions, suggestions, or issues.
                             </p>
                         </div>
                         <div class="metadata-card" aria-label="HatSwap device and app info">
-                            <p class="panel-label">Attached metadata</p>
+                            <p class="panel-label">Attached diagnostics</p>
                             <pre class="metadata-block" data-device-app-info>Device/App Info
-- Source: Unknown
-- Device model: Unknown
-- OS version: Unknown
-- HatSwap version: Unknown
-- Build type: Unknown</pre>
+- Source: Web
+- Device model: Not provided
+- OS version: Not provided
+- HatSwap version: Not provided
+- Build type: release</pre>
                         </div>
                         <div class="note-card">
-                            <h3>Quick rule of thumb</h3>
+                            <h3>Why email-first?</h3>
                             <ul>
-                                <li>Something broken? Use the bug report form.</li>
-                                <li>Want a new capability? Use the feature request form.</li>
-                                <li>Anything else? Use general feedback.</li>
+                                <li><strong>100% Private:</strong> Your diagnostics stay between you and the developer.</li>
+                                <li><strong>Zero Friction:</strong> No GitHub or forum account required.</li>
+                                <li><strong>Direct Conversation:</strong> We can reply to help troubleshoot right away.</li>
                             </ul>
                         </div>
                     </aside>
@@ -86,10 +83,9 @@
                 <section class="section" aria-labelledby="report-title" id="report">
                     <div class="section-panel">
                         <p class="eyebrow">Step 1</p>
-                        <h2 id="report-title">Pick the issue type that matches the problem.</h2>
+                        <h2 id="report-title">Pick the topic that best matches your message.</h2>
                         <p>
-                            Each form gathers the right details up front so the issue can be triaged quickly
-                            and answered without extra back-and-forth.
+                            Each button below opens a pre-formatted email draft with helpful prompt questions and attached diagnostics ready to send.
                         </p>
 
                         <div class="issue-grid">
@@ -97,106 +93,91 @@
                                 <div class="issue-icon">01</div>
                                 <h3>Bug report</h3>
                                 <p>
-                                    Use this when HatSwap behaves unexpectedly, fails to load, or shows the wrong
-                                    result.
+                                    Use this when HatSwap behaves unexpectedly, fails to switch apps, or crashes.
                                 </p>
                                 <ul>
                                     <li>Reproduction steps</li>
                                     <li>Expected behavior</li>
                                     <li>Actual behavior</li>
                                 </ul>
-                                <a class="button primary" data-feedback-type="bug"
-                                    data-feedback-template="bug_report.yml"
-                                    href="https://github.com/jcsosia/jcsosia.github.io/issues/new?template=bug_report.yml">Open
-                                    bug form</a>
+                                <a class="button primary" data-mailto-trigger="bug"
+                                    href="mailto:support@sosiacollective.com?subject=%5BHatSwap%20Bug%20Report%5D">Draft bug email</a>
                             </article>
 
                             <article class="issue-card">
                                 <div class="issue-icon">02</div>
                                 <h3>Feature request</h3>
                                 <p>
-                                    Use this when you want to suggest a new capability, workflow, or improvement.
+                                    Use this when you want to suggest a new capability, schedule mode, or workflow improvement.
                                 </p>
                                 <ul>
-                                    <li>What problem should the feature solve?</li>
+                                    <li>What problem should this solve?</li>
                                     <li>How should it behave?</li>
-                                    <li>Are there alternatives to consider?</li>
+                                    <li>Alternatives you considered</li>
                                 </ul>
-                                <a class="button primary" data-feedback-type="feature"
-                                    data-feedback-template="feature_request.yml"
-                                    href="https://github.com/jcsosia/jcsosia.github.io/issues/new?template=feature_request.yml">Open
-                                    feature form</a>
+                                <a class="button primary" data-mailto-trigger="feature"
+                                    href="mailto:support@sosiacollective.com?subject=%5BHatSwap%20Feature%20Request%5D">Draft feature email</a>
                             </article>
 
                             <article class="issue-card">
                                 <div class="issue-icon">03</div>
                                 <h3>General feedback</h3>
                                 <p>
-                                    Use this for praise, open-ended thoughts, small suggestions, or anything that
-                                    does not fit the first two forms.
+                                    Use this for praise, questions, general impressions, or thoughts that don't fit the first two.
                                 </p>
                                 <ul>
                                     <li>What did you notice?</li>
-                                    <li>What felt confusing or strong?</li>
-                                    <li>What should we keep in mind?</li>
+                                    <li>What felt confusing or helpful?</li>
+                                    <li>Any other suggestions</li>
                                 </ul>
-                                <a class="button primary" data-feedback-type="general"
-                                    data-feedback-template="general_feedback.yml"
-                                    href="https://github.com/jcsosia/jcsosia.github.io/issues/new?template=general_feedback.yml">Open
-                                    feedback form</a>
+                                <a class="button primary" data-mailto-trigger="general"
+                                    href="mailto:support@sosiacollective.com?subject=%5BHatSwap%20Feedback%5D">Draft feedback email</a>
                             </article>
                         </div>
                     </div>
                 </section>
 
-                <section class="section" id="request" aria-labelledby="request-title">
+                <section class="section" id="tips" aria-labelledby="tips-title">
                     <div class="feedback-grid">
                         <article class="feedback-card">
                             <p class="panel-label">Useful details for bug reports</p>
-                            <h2 id="request-title">The best bug reports make reproduction obvious.</h2>
+                            <h2 id="tips-title">Great bug reports make fixes fast.</h2>
                             <p>
-                                Include the page path, browser, device, and the exact sequence of actions that
-                                triggered the issue. Screenshots or short recordings are helpful when the visual
-                                state matters.
+                                Tell us your device model, Android version, and the exact steps you took before the problem happened. Screenshots or short screen recordings are also welcome attachments!
                             </p>
                         </article>
 
                         <article class="feedback-card">
-                            <p class="panel-label">Useful details for feature requests</p>
-                            <h2>Strong requests explain the why before the how.</h2>
+                            <p class="panel-label">Useful details for feature ideas</p>
+                            <h2>Explain the why before the how.</h2>
                             <p>
-                                Start with the problem, then describe the change you want to see. If there is an
-                                existing workaround, include it so the request can be weighed against the current
-                                experience.
+                                Start with the friction point you're trying to solve in your daily routine, then describe how you envision the new feature fitting into your workflow.
                             </p>
                         </article>
                     </div>
                 </section>
 
-                <section class="section" id="share" aria-labelledby="share-title">
+                <section class="section" id="github" aria-labelledby="github-title">
                     <div class="section-panel">
-                        <p class="eyebrow">Step 2</p>
-                        <h2 id="share-title">Use the form that matches your intent.</h2>
+                        <p class="eyebrow">Developers & Open Source</p>
+                        <h2 id="github-title">Prefer tracking on GitHub?</h2>
                         <p>
-                            The linked GitHub issue templates keep the reporting experience short, structured,
-                            and easy to maintain as the project grows.
+                            HatSwap is an open-source project. If you are a developer, contributor, or prefer filing and following technical issues publicly, our GitHub repository tracker is open.
                         </p>
                         <div class="hero-actions">
-                            <a class="button secondary" href="/hatswap/">Back to the project page</a>
-                            <a class="button primary" data-feedback-type="general"
-                                data-feedback-template="general_feedback.yml"
-                                href="https://github.com/jcsosia/jcsosia.github.io/issues/new?template=general_feedback.yml">Leave
-                                general feedback</a>
+                            <a class="button secondary" href="/hatswap/">Back to project page</a>
+                            <a class="button primary" href="https://github.com/jcsosia/HatSwap/issues" target="_blank" rel="noopener noreferrer">
+                                Open GitHub Issues
+                            </a>
                         </div>
                     </div>
                 </section>
             </main>
 
             <footer class="footer">
-                <span>HatSwap feedback is routed through GitHub Issues.</span>
+                <span>HatSwap support is handled directly via <a href="mailto:support@sosiacollective.com">support@sosiacollective.com</a>.</span>
                 <span>
-                    Issue templates live in <a
-                        href="https://github.com/jcsosia/jcsosia.github.io/tree/main/.github/ISSUE_TEMPLATE">.github/ISSUE_TEMPLATE</a>
+                    Project home: <a href="/hatswap/">/hatswap/</a>
                 </span>
                 <span>
                     Privacy policy: <a href="/hatswap/privacy/">/hatswap/privacy/</a>
@@ -207,12 +188,8 @@
 
     <script>
         (() => {
+            const SUPPORT_EMAIL = "support@sosiacollective.com";
             const metadataKeys = ["source", "deviceModel", "osVersion", "appVersion", "buildType"];
-            const feedbackTemplates = {
-                bug: "bug_report.yml",
-                feature: "feature_request.yml",
-                general: "general_feedback.yml"
-            };
 
             function safeDecodeQueryValue(value) {
                 if (value === null || value === undefined) {
@@ -228,18 +205,21 @@
                 }
             }
 
-            function normalizeValue(value) {
+            function normalizeValue(value, fallback) {
                 const decodedValue = safeDecodeQueryValue(value).trim();
-                return decodedValue || "Unknown";
+                return decodedValue || fallback;
             }
 
             function getHatSwapContext() {
                 const searchParams = new URLSearchParams(window.location.search);
 
-                return metadataKeys.reduce((context, key) => {
-                    context[key] = normalizeValue(searchParams.get(key));
-                    return context;
-                }, {});
+                return {
+                    source: normalizeValue(searchParams.get("source"), "Web"),
+                    deviceModel: normalizeValue(searchParams.get("deviceModel"), "Not provided"),
+                    osVersion: normalizeValue(searchParams.get("osVersion"), "Not provided"),
+                    appVersion: normalizeValue(searchParams.get("appVersion"), "Not provided"),
+                    buildType: normalizeValue(searchParams.get("buildType"), "release")
+                };
             }
 
             function buildPrefillBlock(context) {
@@ -253,56 +233,76 @@
                 ].join("\n");
             }
 
-            function buildIssueBody(feedbackType, context) {
-                const prefillBlock = buildPrefillBlock(context);
-                const prompts = {
-                    bug: [
-                        "## What happened?",
-                        "",
-                        "## Steps to reproduce",
-                        "",
-                        "## Expected behavior",
-                        "",
-                        "## Actual behavior",
-                        "",
-                        "## Additional context",
-                        "",
-                        prefillBlock
-                    ],
-                    feature: [
-                        "## Problem statement",
-                        "",
-                        "## Suggested solution",
-                        "",
-                        "## Alternatives considered",
-                        "",
-                        "## Additional context",
-                        "",
-                        prefillBlock
-                    ],
-                    general: [
-                        "## Feedback",
-                        "",
-                        "## Additional context",
-                        "",
-                        prefillBlock
-                    ]
+            function buildDiagnosticsEmailBlock(context) {
+                return [
+                    "",
+                    "",
+                    "--- Diagnostics (helps troubleshoot issues) ---",
+                    `App: HatSwap ${context.appVersion}`,
+                    `Device: ${context.deviceModel}`,
+                    `OS: ${context.osVersion}`,
+                    `Source: ${context.source} (${context.buildType})`,
+                    "------------------------------------------------"
+                ].join("\n");
+            }
+
+            function buildMailtoUrl(feedbackType, context) {
+                const hasVersion = context.appVersion && context.appVersion !== "Not provided";
+                const versionSuffix = hasVersion ? ` v${context.appVersion}` : "";
+
+                const subjects = {
+                    bug: `[HatSwap Bug Report]${versionSuffix}`,
+                    feature: `[HatSwap Feature Request]`,
+                    general: `[HatSwap Feedback]`
                 };
 
-                return (prompts[feedbackType] || prompts.general).join("\n");
+                const subject = subjects[feedbackType] || "[HatSwap Feedback]";
+                const diagnostics = buildDiagnosticsEmailBlock(context);
+
+                const bodyTemplates = {
+                    bug: [
+                        "Hi JC,",
+                        "",
+                        "What happened?",
+                        "[Describe the issue here]",
+                        "",
+                        "Steps to reproduce:",
+                        "1. ",
+                        "2. ",
+                        "",
+                        "Expected behavior:",
+                        "[What did you expect to happen instead?]",
+                        diagnostics
+                    ].join("\n"),
+                    feature: [
+                        "Hi JC,",
+                        "",
+                        "What problem would you like HatSwap to solve?",
+                        "[Describe the situation or friction point]",
+                        "",
+                        "Suggested feature or improvement:",
+                        "[Describe your idea]",
+                        diagnostics
+                    ].join("\n"),
+                    general: [
+                        "Hi JC,",
+                        "",
+                        "What's on your mind?",
+                        "[Share your thoughts, questions, or suggestions here]",
+                        diagnostics
+                    ].join("\n")
+                };
+
+                const body = bodyTemplates[feedbackType] || bodyTemplates.general;
+                return `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             }
 
             function updateFeedbackLinks() {
                 const context = getHatSwapContext();
-                const fallbackTemplate = feedbackTemplates.general;
 
-                document.querySelectorAll("[data-feedback-type][data-feedback-template]").forEach((link) => {
-                    const feedbackType = link.getAttribute("data-feedback-type");
-                    const template = feedbackTemplates[feedbackType] || fallbackTemplate;
-                    const url = new URL(link.href);
-                    url.searchParams.set("template", template);
-                    url.searchParams.set("body", buildIssueBody(feedbackType, context));
-                    link.href = url.toString();
+                document.querySelectorAll("[data-mailto-trigger]").forEach((link) => {
+                    const feedbackType = link.getAttribute("data-mailto-trigger");
+                    link.href = buildMailtoUrl(feedbackType, context);
                 });
 
                 const metadataNode = document.querySelector("[data-device-app-info]");
@@ -311,7 +311,26 @@
                 }
             }
 
+            function setupCopyEmailButton() {
+                const copyButton = document.querySelector("[data-copy-email]");
+                if (!copyButton) return;
+
+                copyButton.addEventListener("click", async () => {
+                    try {
+                        await navigator.clipboard.writeText(SUPPORT_EMAIL);
+                        const originalText = copyButton.textContent;
+                        copyButton.textContent = "Email copied! ✓";
+                        setTimeout(() => {
+                            copyButton.textContent = originalText;
+                        }, 2500);
+                    } catch (err) {
+                        window.location.href = `mailto:${SUPPORT_EMAIL}`;
+                    }
+                });
+            }
+
             updateFeedbackLinks();
+            setupCopyEmailButton();
         })();
     </script>
 </body>

@@ -1,6 +1,6 @@
 # Privacy Policy for HatSwap
 
-**Last Updated:** March 24, 2026
+**Last Updated:** September 12, 2026
 
 At **HatSwap**, we believe that your digital habits and the apps you use are your business. Our "Privacy First" philosophy means the app is designed to function entirely on your device without a central server or routine data collection.
 
@@ -26,11 +26,11 @@ HatSwap requests a small set of system permissions or settings access to enable 
 ## 4. Third‑Party Services and Feedback
 - **No analytics or crash-reporting SDKs:** HatSwap does not include analytics, advertising, or crash‑reporting SDKs (for example: Firebase Analytics/Crashlytics, Sentry, Bugsnag). If we add any third‑party telemetry in the future, we will update this policy and list the services and the exact data they collect.
 
-- **Feedback via GitHub:** When you use the in‑app feedback action, HatSwap opens a GitHub Issue URL and may prefill non‑identifying technical metadata (Device model, Android OS version, App version). You can review and edit this information before submitting; nothing is posted until you complete the GitHub submission.
+- **Feedback via Email:** When you use the in‑app feedback action, HatSwap opens your device's email application with a pre-filled draft addressed to `support@sosiacollective.com`. The draft includes non-sensitive diagnostic details (Device model, Android OS version, and HatSwap version) to help troubleshoot issues. You have complete control to review, edit, or delete any of this information before sending; nothing is transmitted until you choose to send the email.
 
 ## 5. Data Deletion and Control
 - **Delete / clear data:** All HatSwap data is stored in your app sandbox. Uninstalling the app or using the system "Clear data" control removes local HatSwap data from your device. You can also delete or export data from within the app if that feature is provided.
-- **Assistance:** If you need help deleting or exporting data, contact us via the GitHub feedback link in the app and we will assist.
+- **Assistance:** If you need help deleting or exporting data, contact us via email at `support@sosiacollective.com` and we will assist.
 
 ## 6. Children’s Privacy
 HatSwap does not knowingly collect personal information from children. Because the app does not collect or transmit personal user data by default, it is compliant with the Children’s Online Privacy Protection Act (COPPA).
@@ -39,4 +39,4 @@ HatSwap does not knowingly collect personal information from children. Because t
 We may update our Privacy Policy from time to time. We will notify users of changes by posting the updated Privacy Policy on this page and updating the "Last Updated" date.
 
 ## 8. Contact Us
-If you have any questions or suggestions about our Privacy Policy, please contact us via the GitHub feedback link within the app.
+If you have any questions or suggestions about our Privacy Policy, please contact us via email at `support@sosiacollective.com`.
