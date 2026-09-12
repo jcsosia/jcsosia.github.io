@@ -90,30 +90,20 @@
                     <section class="policy-section" aria-labelledby="policy-section-2">
                         <h3 id="policy-section-2">2. Permissions and Device Features</h3>
                         <p>
-                            HatSwap requests a small set of system permissions or settings access to enable its
-                            core features. All requests are for on-device use only.
+                            HatSwap requests a minimal set of system permissions to enable its core scheduling and widget features. All permissions are used strictly on-device:
                         </p>
                         <ul>
                             <li>
-                                <b>Installed apps / package visibility:</b> HatSwap enumerates launcher apps using the
-                                system PackageManager (for example, queryIntentActivities(...)) so you can pick
-                                apps for your Hats. The app does not currently declare the broad QUERY_ALL_PACKAGES
-                                permission in the manifest. The list of apps is used only locally to populate the
-                                App Picker and is never uploaded or shared. If we later add QUERY_ALL_PACKAGES, we
-                                will document that change and provide the required Play Console justification.
+                                <b>Installed apps / package visibility:</b> HatSwap enumerates launcher apps using Android's standard <code>&lt;queries&gt;</code> declaration and <code>PackageManager</code> so you can choose apps for your Hats. The app does not request broad package visibility (<code>QUERY_ALL_PACKAGES</code>) or Usage Access (<code>PACKAGE_USAGE_STATS</code>). The list of installed apps is queried and displayed entirely on your device and is never transmitted off-device or shared.
                             </li>
                             <li>
-                                <b>Usage Access (PACKAGE_USAGE_STATS):</b> HatSwap may ask you to grant Usage Access in
-                                system settings to support schedule detection or to determine the currently active
-                                foreground app in certain flows. This access must be enabled manually by the user
-                                in Settings and the related data is processed on-device only.
+                                <b>Exact Alarms (<code>SCHEDULE_EXACT_ALARM</code> / <code>USE_EXACT_ALARM</code>):</b> HatSwap uses exact alarm permissions exclusively to trigger your scheduled hat switches at the precise times you configure. HatSwap does not collect or transmit any data through the alarm system.
                             </li>
                             <li>
-                                <b>Overlay / Draw over apps (SYSTEM_ALERT_WINDOW):</b> If you enable features that
-                                require
-                                on-screen overlays, HatSwap may request the Draw-over-apps permission. This is an
-                                optional user setting that must be enabled in system Settings and is used only for
-                                the described UX; overlay content and related events are not transmitted off-device.
+                                <b>Battery Optimization Exclusion (<code>REQUEST_IGNORE_BATTERY_OPTIMIZATIONS</code>):</b> To prevent Android's battery saver (Doze mode) from delaying or suppressing scheduled hat switches, HatSwap may request to be excluded from battery optimizations. This is handled via standard Android system dialogs and processes no user data.
+                            </li>
+                            <li>
+                                <b>Device Boot (<code>RECEIVE_BOOT_COMPLETED</code>):</b> Required to automatically restore your active hat state and reschedule your user-defined alarms whenever your device reboots.
                             </li>
                         </ul>
                     </section>

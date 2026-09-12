@@ -11,13 +11,15 @@ At **HatSwap**, we believe that your digital habits and the apps you use are you
 Note: The app currently does not use a separate on‑device encryption library (e.g., SQLCipher or AndroidX Security) for the Room database. If encryption-at-rest is added in a future release, we will update this policy to describe the implementation.
 
 ## 2. Permissions and Device Features
-HatSwap requests a small set of system permissions or settings access to enable its core features. All requests are for on‑device use only.
+HatSwap requests a minimal set of system permissions to enable its core scheduling and widget features. All permissions are used strictly on-device:
 
-- **Installed apps / package visibility:** HatSwap enumerates launcher apps using the system PackageManager (e.g., `queryIntentActivities(...)`) so you can pick apps for your Hats. The app does not currently declare the broad `QUERY_ALL_PACKAGES` permission in the manifest. The list of apps is used only locally to populate the App Picker and is never uploaded or shared. If we later add `QUERY_ALL_PACKAGES`, we will document that change and provide the required Play Console justification.
+- **Installed apps / package visibility:** HatSwap enumerates launcher apps using Android's standard `<queries>` declaration and `PackageManager` so you can choose apps for your Hats. The app does not request broad package visibility (`QUERY_ALL_PACKAGES`) or Usage Access (`PACKAGE_USAGE_STATS`). The list of installed apps is queried and displayed entirely on your device and is never transmitted off-device or shared.
 
-- **Usage Access (`PACKAGE_USAGE_STATS`):** HatSwap may ask you to grant Usage Access in system settings to support schedule detection or to determine the currently active/foreground app in certain flows. This access must be enabled manually by the user in Settings and the related data is processed on‑device only.
+- **Exact Alarms (`SCHEDULE_EXACT_ALARM` / `USE_EXACT_ALARM`):** HatSwap uses exact alarm permissions exclusively to trigger your scheduled hat switches at the precise times you configure. HatSwap does not collect or transmit any data through the alarm system.
 
-- **Overlay / Draw over apps (`SYSTEM_ALERT_WINDOW`):** If you enable features that require on‑screen overlays, HatSwap may request the Draw‑over‑apps permission. This is an optional user setting that must be enabled in system Settings and is used only for the described UX; overlay content and related events are not transmitted off‑device.
+- **Battery Optimization Exclusion (`REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`):** To prevent Android's battery saver (Doze mode) from delaying or suppressing scheduled hat switches, HatSwap may request to be excluded from battery optimizations. This is handled via standard Android system dialogs and processes no user data.
+
+- **Device Boot (`RECEIVE_BOOT_COMPLETED`):** Required to automatically restore your active hat state and reschedule your user-defined alarms whenever your device reboots.
 
 ## 3. Backups and Export/Restore
 - **Device backups:** HatSwap sets `android:allowBackup="false"` to avoid automatic cloud backups to the device account. This prevents routine device cloud backup from including your HatSwap data.
