@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description"
+        content="Quick Contact Sheet is a lightweight Android app and Glance home-screen widget for instant calling, messaging, and reusable text snippets." />
+    <title>Quick Contact Sheet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/assets/css/site.css" />
+</head>
+
+<body>
+    <div class="page-shell">
+        <div class="site-frame">
+            <header class="topbar">
+                <a class="brand" href="/" aria-label="Return to the home page">
+                    <span class="brand-mark">Q</span>
+                    <span class="brand-copy">
+                        <strong>Quick Contact Sheet</strong>
+                        <span>One-tap contact actions &amp; reusable text snippets</span>
+                    </span>
+                </a>
+                <nav class="topnav" aria-label="Primary">
+                    <a href="/">Home</a>
+                    <a href="/quick-contact-sheet/feedback/">Feedback</a>
+                    <a href="/quick-contact-sheet/privacy/">Privacy</a>
+                    <a href="/quick-contact-sheet/terms/">Terms</a>
+                </nav>
+            </header>
+
+            <main>
+                <section class="hero" aria-labelledby="project-title">
+                    <div class="hero-copy">
+                        <p class="eyebrow">Android App &amp; Glance Widgets</p>
+                        <h1 id="project-title">One tap to reach the people who matter most.</h1>
+                        <p>
+                            Quick Contact Sheet puts instant calling, texting, and reusable message templates right on your
+                            Android home screen. Built with Jetpack Compose, Glance, and Material 3—strictly local, lightweight,
+                            and 100% offline.
+                        </p>
+                        <div class="hero-actions">
+                            <a class="button primary" href="#">Be a Tester</a>
+                            <a class="button secondary" href="https://github.com/jcsosia/QuickContactSheet" target="_blank" rel="noopener">GitHub</a>
+                            <a class="button secondary" href="/quick-contact-sheet/feedback/">Feedback</a>
+                            <a class="button secondary" href="/quick-contact-sheet/privacy/">Privacy</a>
+                            <a class="button secondary" href="/quick-contact-sheet/terms/">Terms</a>
+                        </div>
+                    </div>
+
+                    <aside class="hero-card" aria-label="Quick Contact Sheet summary">
+                        <div class="metadata-card">
+                            <p class="panel-label">What it does</p>
+                            <p class="policy-summary">
+                                Quick Contact Sheet creates one-tap home-screen widgets for your VIP contacts. Tap to call,
+                                text, or dispatch pre-written message templates without typing.
+                            </p>
+                        </div>
+                        <div class="note-card">
+                            <h3>100% Private &amp; Offline</h3>
+                            <p>
+                                Operates entirely on your device with zero network permissions, no telemetry, and no accounts.
+                                Uses native Android intents (ACTION_DIAL and ACTION_SENDTO) to route communications securely through
+                                your phone's native dialer and messaging app.
+                            </p>
+                        </div>
+                    </aside>
+                </section>
+
+                <section class="section" aria-labelledby="showcase-title">
+                    <div class="section-panel">
+                        <p class="eyebrow">Real Experience</p>
+                        <h2 id="showcase-title">Designed for speed, clarity, and one-hand use.</h2>
+                        <p>
+                            Every interaction is built to get you in and out fast—whether you need a quick call, a standard check-in text,
+                            or custom message presets.
+                        </p>
+
+                        <div class="screenshot-grid">
+                            <div class="screenshot-card section-panel">
+                                <h3>Instant Quick Actions</h3>
+                                <p>
+                                    Tap your contact's widget to open the bottom sheet. Start a phone call, open a messaging thread, or tap any
+                                    pre-composed message snippet to open SMS with text already filled in.
+                                </p>
+                                <img src="/assets/img/quick-contact-sheet/bottom_sheet_active.webp"
+                                    alt="Quick Contact Sheet interactive bottom sheet showing contact photo, call, message, and quick message chips"
+                                    loading="lazy" />
+                            </div>
+
+                            <div class="screenshot-card section-panel">
+                                <h3>Glance Home-Screen Widget</h3>
+                                <p>
+                                    Clean, responsive Glance widgets that live right on your home screen. Displays your contact's photo
+                                    and direct action shortcuts in a pill-shaped layout that blends seamlessly into your launcher.
+                                </p>
+                                <img src="/assets/img/quick-contact-sheet/home_with_active_widget.webp"
+                                    alt="Home screen showing the active Quick Contact Sheet widget"
+                                    loading="lazy" />
+                            </div>
+
+                            <div class="screenshot-card section-panel">
+                                <h3>Drag-and-Drop Reusable Snippets</h3>
+                                <p>
+                                    Compose frequently used text snippets like &ldquo;On my way!&rdquo; or &ldquo;Call you in 5&rdquo;.
+                                    Drag and drop to rearrange your top favorites for immediate reach.
+                                </p>
+                                <img src="/assets/img/quick-contact-sheet/config_quick_messages.webp"
+                                    alt="Quick message editor with drag handles and message management"
+                                    loading="lazy" />
+                            </div>
+
+                            <div class="screenshot-card section-panel">
+                                <h3>Per-Widget Personalization</h3>
+                                <p>
+                                    Choose contacts with instant search, select preferred default phone numbers for contacts with multiple lines,
+                                    and customize avatar photos directly.
+                                </p>
+                                <img src="/assets/img/quick-contact-sheet/widget_config_saved_messages.webp"
+                                    alt="Widget configuration screen showing contact selection, default phone number, and message presets"
+                                    loading="lazy" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" aria-labelledby="features-title">
+                    <div class="section-panel">
+                        <p class="eyebrow">Features</p>
+                        <h2 id="features-title">Everything Quick Contact Sheet is built to support.</h2>
+                        <div class="feature-list-grid">
+                            <ul class="feature-list">
+                                <li>Glance home-screen widgets in multiple responsive sizes</li>
+                                <li>One-tap calling &amp; texting via native system intents</li>
+                                <li>Pre-composed text snippets with 1-tap pre-fill</li>
+                                <li>Drag-and-drop message reordering</li>
+                            </ul>
+                            <ul class="feature-list">
+                                <li>Automatic per-contact preset caching</li>
+                                <li>Local JSON backup and restore</li>
+                                <li>Custom photo &amp; default number resolution</li>
+                                <li>100% private, offline, and tracker-free</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <footer class="footer">
+                <span>Hosted on GitHub Pages.</span>
+                <span>
+                    Quick Contact Sheet: <a href="/">Home</a> · <a href="/quick-contact-sheet/">About</a> · <a
+                        href="/quick-contact-sheet/feedback/">Feedback</a> · <a href="/quick-contact-sheet/privacy/">Privacy</a> · <a
+                        href="/quick-contact-sheet/terms/">Terms</a>
+                </span>
+            </footer>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Privacy Policy for Quick Contact Sheet, hosted on jcsosia.github.io/quick-contact-sheet/privacy." />
+    <title>Quick Contact Sheet Privacy Policy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/assets/css/site.css" />
+</head>
+
+<body>
+    <div class="page-shell">
+        <div class="site-frame">
+            <header class="topbar">
+                <a class="brand" href="/quick-contact-sheet/" aria-label="Return to the Quick Contact Sheet project page">
+                    <span class="brand-mark">Q</span>
+                    <span class="brand-copy">
+                        <strong>Quick Contact Sheet Privacy</strong>
+                        <span>Privacy-first policy for the Quick Contact Sheet app</span>
+                    </span>
+                </a>
+                <nav class="topnav" aria-label="Primary">
+                    <a href="/">Home</a>
+                    <a href="/quick-contact-sheet/feedback/">Feedback</a>
+                    <a href="/quick-contact-sheet/privacy/" aria-current="page">Privacy</a>
+                    <a href="/quick-contact-sheet/terms/">Terms</a>
+                </nav>
+            </header>
+
+            <main>
+                <section class="hero" aria-labelledby="privacy-title">
+                    <div class="hero-copy">
+                        <p class="eyebrow">Quick Contact Sheet / Privacy Policy</p>
+                        <h1 id="privacy-title">Privacy Policy for Quick Contact Sheet</h1>
+                        <p>
+                            Quick Contact Sheet is designed with privacy as a foundational principle.
+                            The app operates entirely offline and does not connect to the internet. We do not collect,
+                            transmit, share, or sell your personal data.
+                        </p>
+                        <p class="policy-meta">Effective Date: September 9, 2026 · Last Updated: September 12, 2026</p>
+                    </div>
+
+                    <aside class="hero-card" aria-label="Privacy highlights">
+                        <div class="note-card">
+                            <h3>Core privacy stance</h3>
+                            <ul>
+                                <li>Operates entirely offline with zero network permissions</li>
+                                <li>Contacts data stays strictly on your device</li>
+                                <li>No account requirement, trackers, or analytics SDKs</li>
+                                <li>User-controlled local JSON backup &amp; restore</li>
+                            </ul>
+                        </div>
+                        <div class="note-card">
+                            <h3>How to reach us</h3>
+                            <p>
+                                If you have questions about this policy or your data, email us directly at
+                                <a href="mailto:support@sosiacollective.com">support@sosiacollective.com</a>.
+                            </p>
+                        </div>
+                    </aside>
+                </section>
+
+                <article class="section-panel policy-document" id="policy" aria-labelledby="policy-title">
+                    <h2 id="policy-details-heading">Policy details</h2>
+
+                    <section class="policy-section" aria-labelledby="policy-section-1">
+                        <h3 id="policy-section-1">1. Data Access and Usage</h3>
+                        <p>
+                            To provide its core functionality, Quick Contact Sheet requires access to certain information locally on your device.
+                        </p>
+                        <ul>
+                            <li>
+                                <b>Contacts Data (Sensitive Information):</b> The app requests the Read Contacts (<code>android.permission.READ_CONTACTS</code>) permission.
+                                <ul>
+                                    <li><b>What we access:</b> When granted, the app reads contact IDs, display names, phone numbers, labels (e.g. Mobile, Home), and contact photo URIs stored on your device.</li>
+                                    <li><b>Why we access it:</b> This data is required solely to let you select contacts and display them on your home screen widgets for quick access.</li>
+                                    <li><b>Data Flow &amp; Sharing:</b> Your contact data is processed strictly on your device. It is never transmitted to external servers, nor is it shared with any third parties. The app structurally cannot transmit data over a network, as it does not request internet permissions.</li>
+                                </ul>
+                            </li>
+                            <li>
+                                <b>Calling and Messaging Interactions:</b> Quick Contact Sheet acts as a shortcut to your device's native communication apps.
+                                <ul>
+                                    <li><b>Calling:</b> When you tap a contact to make a call, the app passes the phone number to your device's default dialer using a standard system intent (<code>android.intent.action.DIAL</code>). The app does not place the call directly and does not have access to your call logs.</li>
+                                    <li><b>Messaging:</b> When you tap to send a message, the app passes the phone number and any pre-configured message text to your device's default SMS application (<code>android.intent.action.SENDTO</code>). The app does not send SMS messages directly in the background and does not have access to your message history.</li>
+                                </ul>
+                            </li>
+                            <li>
+                                <b>Haptic Feedback:</b> The app requests the Vibrate (<code>android.permission.VIBRATE</code>) permission strictly to provide physical haptic feedback when you interact with widgets and app interfaces.
+                            </li>
+                            <li>
+                                <b>User-Initiated Support &amp; Feedback:</b> If you choose to submit feedback or report an issue via the "Send Feedback" option in the app, the app prepares an email draft in your device's default email client addressed to <code>support@sosiacollective.com</code>. Non-sensitive device diagnostics (app version, build code, device manufacturer/model, and Android OS version) are pre-filled in the draft body. This diagnostic information is fully transparent and editable; no email or diagnostic data is ever transmitted automatically or in the background.
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section class="policy-section" aria-labelledby="policy-section-2">
+                        <h3 id="policy-section-2">2. Local Storage and Backups</h3>
+                        <p>
+                            When you configure widgets and create pre-written messages, this configuration data is saved locally on your device using Jetpack DataStore.
+                        </p>
+                        <ul>
+                            <li>
+                                <b>Manual Backups:</b> You have the option to manually export your app settings and widget presets. This creates a local JSON file on your device's storage.
+                            </li>
+                            <li>
+                                We do not have access to these backups, and they are never automatically uploaded to any cloud service. You are solely responsible for where you store or share your exported backup files.
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section class="policy-section" aria-labelledby="policy-section-3">
+                        <h3 id="policy-section-3">3. Third-Party Services and Analytics</h3>
+                        <p>
+                            Quick Contact Sheet contains <b>no</b> third-party SDKs, analytics trackers, crash reporters, or advertising frameworks. Your usage habits, interaction data, and personal information are not monitored or monetized in any way.
+                        </p>
+                    </section>
+
+                    <section class="policy-section" aria-labelledby="policy-section-4">
+                        <h3 id="policy-section-4">4. Data Retention and Deletion</h3>
+                        <p>
+                            Because all data handling occurs locally on your hardware:
+                        </p>
+                        <ul>
+                            <li>
+                                <b>Retention:</b> Your widget configurations and selected contacts remain on your device as long as the app is installed.
+                            </li>
+                            <li>
+                                <b>Deletion:</b> You maintain full control over your data. You can delete all data associated with Quick Contact Sheet instantly by clearing the app's storage in your Android System Settings or by uninstalling the application.
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section class="policy-section" aria-labelledby="policy-section-5">
+                        <h3 id="policy-section-5">5. Security</h3>
+                        <p>
+                            We rely on the Android operating system's built-in application sandboxing to protect your data. Furthermore, the complete absence of internet access permissions within the app's architecture guarantees that your sensitive contact information cannot be leaked over a network by the application.
+                        </p>
+                    </section>
+
+                    <section class="policy-section" aria-labelledby="policy-section-6">
+                        <h3 id="policy-section-6">6. Changes to This Privacy Policy</h3>
+                        <p>
+                            We may update this Privacy Policy from time to time to reflect changes in our app's features or legal requirements. Any changes will be reflected on this page, and the "Last Updated" date at the top will be revised accordingly.
+                        </p>
+                    </section>
+
+                    <section class="policy-section" aria-labelledby="policy-section-7">
+                        <h3 id="policy-section-7">7. Related Documents &amp; Contact</h3>
+                        <p>
+                            For terms governing the use of this application, please review our <a href="/quick-contact-sheet/terms/">Terms of Use</a>.
+                            If you have questions about this policy, please contact us at <a href="mailto:support@sosiacollective.com">support@sosiacollective.com</a>.
+                        </p>
+                    </section>
+                </article>
+            </main>
+
+            <footer class="footer">
+                <span>Hosted on GitHub Pages.</span>
+                <span>
+                    Quick Contact Sheet: <a href="/">Home</a> · <a href="/quick-contact-sheet/">About</a> · <a href="/quick-contact-sheet/feedback/">Feedback</a> · <a href="/quick-contact-sheet/privacy/">Privacy</a> · <a href="/quick-contact-sheet/terms/">Terms</a>
+                </span>
+            </footer>
+        </div>
+    </div>
+</body>
+
+</html>

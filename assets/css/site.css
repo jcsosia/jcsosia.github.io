@@ -701,6 +701,46 @@ h1 {
     color: var(--muted);
 }
 
+.screenshot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.screenshot-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+}
+
+.screenshot-card h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    letter-spacing: -0.03em;
+}
+
+.screenshot-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.96rem;
+    line-height: 1.5;
+}
+
+.screenshot-card img {
+    display: block;
+    width: 100%;
+    max-width: 290px;
+    margin: 0 auto;
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(38, 28, 19, 0.12);
+    box-shadow: 0 16px 36px rgba(24, 37, 58, 0.14);
+    background: var(--surface-strong);
+    aspect-ratio: 1080 / 2424;
+    object-fit: cover;
+}
+
 @media (max-width: 960px) {
 
     .hero,
